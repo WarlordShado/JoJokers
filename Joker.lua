@@ -175,12 +175,12 @@ SMODS.Joker { --Make Secret Ability able to retrigger jokers
     cost = 10,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.secAbility == false then
-            if card.ability.extra.totalSpins >= 10 then
+            if card.ability.extra.totalSpins >= 144 then
                 card.ability.extra.secAbility = true
                 card.ability.extra.secAbilityText = "1/" .. card.ability.extra.editionOdds .. " chance to add a random edition to a played card"
                 
                 return {
-                    message = "Secert Ability Active!"
+                    message = "Secret Ability Active!"
                 }
             end
         end
