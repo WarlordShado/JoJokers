@@ -48,6 +48,11 @@ SPflag = true
 				if not context.other_card.debuff then
 					local value1 = card.ability.extra.chips
 					card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.basechips
+
+                    G.E_MANAGER:add_event(Event({func = function()
+                        card:juice_up(0.8, 0.8)
+                    return true end }))
+
 					return{
 						message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}},
 						chips = value1,
@@ -58,6 +63,11 @@ SPflag = true
 			if context.discard and SPflag == false and not context.blueprint then
 				SPflag = true
 				card.ability.extra.chips = card.ability.extra.basechips
+
+                G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.8, 0.8)
+                return true end }))
+
 				return{
 					card = self,
 					message = localize('k_reset')
@@ -99,6 +109,11 @@ SMODS.Joker {
             if steel >= 5 then
                 card.ability.extra.secAbility = true;
                 card.ability.extra.secAbilityText = "All played steel cards give X" .. card.abilit.extra.Xmult .. " mult"
+
+                G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.8, 0.8)
+                return true end }))
+
                 return {
                     message = 'Secret Ability Active!'
                 }
@@ -107,6 +122,7 @@ SMODS.Joker {
 
         if context.cardarea == G.play and context.individual and not context.other_card.debuff and not context.end_of_round and
             context.other_card.ability.name == 'Steel Card' and card.ability.extra.secAbility == true then
+
             return {
                 message = localize{type = 'variable', key = 'a_xmult', vars = {card.ability.extra.Xmult}}, 
                 colour = G.C.XMULT,
@@ -172,6 +188,11 @@ SMODS.Joker {
             if gold >= 3 then
                 card.ability.extra.secAbility = true;
                 card.ability.extra.secAbilityText = "Add a Gold Seal to first played gold card"
+
+                G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.8, 0.8)
+                return true end }))
+
                 return {
                     message = 'Secret Ability Active!'
                 }
@@ -227,6 +248,10 @@ SMODS.Joker { --Make Secret Ability able to retrigger jokers
             if card.ability.extra.totalSpins >= 144 then
                 card.ability.extra.secAbility = true
                 card.ability.extra.secAbilityText = "1/" .. card.ability.extra.editionOdds .. " chance to add a random edition to a played card"
+
+                G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.8, 0.8)
+                return true end }))
                 
                 return {
                     message = "Secret Ability Active!"
@@ -281,8 +306,80 @@ SMODS.Joker { --Make Secret Ability able to retrigger jokers
                 card = context.other_card
             }
         end
+    end
+}
 
+SMODS.Joker { --Make Secret Ability able to retrigger jokers 
+    key ="cream",
+    loc_txt = {
+        name = "Cream",
+        text = {
+            "{C:attention}#2#/#1#{} chance to destroy a random card when scored",
+            "{C:inactive}(Max of 3 per hand){}",
+            "{C:attention}#4#{}"
+        }
+    },
+    config = {extra = {odds = 5,secAbility = false,secAbilityText="Destroy a Blue Card...",cardsDestroyed = 0,activateSec = false}},
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.odds,(G.GAME.probabilities.normal or 1),card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.cardsDestroyed,card.ability.extra.activateSec}}
+    end,
+    rarity = 2,
+    atlas = "JoJokers",
+    pos = {x=4,y=4},
+    cost = 10,
+    calculate = function (self,card,context)
+        if context.destroying_card then
+            local currentCard = 1
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.2,
+                func = function() 
+                    if pseudorandom('cream') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                        if context.full_hand[currentCard].seal == "Blue" and card.ability.extra.secAbility == false then
+                            card.ability.extra.activateSec = true
+                        end
+                        context.full_hand[currentCard]:shatter()
+                        card.ability.extra.cardsDestroyed = card.ability.extra.cardsDestroyed + 1
+                    end
+                    currentCard = currentCard + 1
+            return true end }))
 
+            return {
+                remove= true
+            }
+        end
+
+        if context.after and card.ability.extra.secAbility == true then
+            G.E_MANAGER:add_event(Event({func = function()
+                card:juice_up(0.8, 0.8)
+            return true end }))
+
+            if card.ability.extra.cardsDestroyed % 10 == 0 then
+                local checkCard = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_black_hole')
+                checkCard:set_edition({negative = true},true)
+                checkCard:add_to_deck()
+                G.consumeables:emplace(checkCard)
+
+                return {
+                    message = "Embrace the Void!"
+                }
+            end
+        end
+
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.secAbility == false then
+            if card.ability.extra.activateSec == true then
+                card.ability.extra.secAbility = true
+                card.ability.extra.secAbilityText = "Every 10 cards destoryed, spawn a negative black hole"
+
+                G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.8, 0.8)
+                return true end }))
+
+                return {
+                    message = "Secert Ability Active!"
+                }
+            end
+        end
     end
 }
 
