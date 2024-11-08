@@ -224,7 +224,7 @@ SMODS.Joker {
     end
 }
 
-SMODS.Joker { --Make Secret Ability able to retrigger jokers 
+SMODS.Joker {
     key ="tusk",
     loc_txt = {
         name = "Tusk",
@@ -309,7 +309,7 @@ SMODS.Joker { --Make Secret Ability able to retrigger jokers
     end
 }
 
-SMODS.Joker { --Make Secret Ability able to retrigger jokers 
+SMODS.Joker {
     key ="cream",
     loc_txt = {
         name = "Cream",
@@ -379,6 +379,74 @@ SMODS.Joker { --Make Secret Ability able to retrigger jokers
                     message = "Secert Ability Active!"
                 }
             end
+        end
+    end
+}
+
+SMODS.Joker {
+    key ="world",
+    loc_txt = {
+        name = "The World",
+        text = {
+            "If a {C:attention}Boss Blind{} is defeated with at least ",
+            "{X:mult,C:white}#2#x{} the score requirement,",
+            "dont advance an Ante",
+            "{C:inactive}(Can only retrigger each ante once){}",
+            "{C:attention}#4#{}"
+        }
+    },
+    config = {extra = {ante_reduction = 1,scoreRec = 2,secAbility = false,secAbilityText="Halt Time for 5 seconds...",reducTriggered = false,seconds = 0,repeats = 2,abilityStopper = false}},
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.ante_reduction,card.ability.extra.scoreRec,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.reducTriggered,card.ability.extra.seconds,card.ability.extra.repeats,card.ability.extra.abilityStopper}}
+    end,
+    rarity = 4,
+    atlas = "JoJokers",
+    pos = {x=6,y=0},
+    cost = 10,
+    blueprint_compat = false,
+    calculate = function (self,card,context)
+
+        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.extra.secAbility == true then
+            if context.other_card.base.value == "Ace" then
+                return {
+                    message = "Muda!",
+                    repetitions = card.ability.extra.repeats,
+                    card = context.other_card
+                }
+            end
+        end
+
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint then
+            if card.ability.extra.reducTriggered == false then
+                card.ability.extra.reducTriggered = true
+                local ante_mod = 0
+                print(card.ability.extra.abilityStopper)
+                if card.ability.extra.abilityStopper == false then
+                    if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scoreRec then
+                        card.ability.extra.abilityStopper = true
+                        ante_mod = ante_mod - card.ability.extra.ante_reduction
+                        ease_ante(ante_mod)
+                        if card.ability.extra.seconds >= 5 and card.ability.extra.secAbility == false then
+                            card.ability.extra.secAbility = true
+                            card.ability.extra.secAbilityText = "Retrigger all Aces Twice"
+                            return {
+                                message = "You have achieved Greatness!"
+                            }
+                        elseif card.ability.extra.secAbility == false then
+                            card.ability.extra.seconds = card.ability.extra.seconds + 1
+                        end
+                        return {
+                            message = "The World"
+                        }
+                    end
+                else
+                    card.ability.extra.abilityStopper = false
+                end
+            end
+        end
+
+        if context.ending_shop and card.ability.extra.reducTriggered == true then --In place so ability only triggers once (it triggered 14 times with the bool)
+            card.ability.extra.reducTriggered = false
         end
     end
 }
