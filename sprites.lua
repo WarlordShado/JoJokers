@@ -11,3 +11,10 @@ SMODS.Atlas({
 	px = 71,
 	py = 95
 }):register()
+
+SMODS.Atlas({
+    key = "JoJokers7",
+	path = "part7.png",
+	px = 71,
+	py = 95
+})

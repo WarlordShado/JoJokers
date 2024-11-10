@@ -17,8 +17,8 @@ local tusk = {
     end,
     rarity = 3,
     discovered = true,
-    atlas = "JoJokers",
-    pos = {x=0,y=16},
+    atlas = "JoJokers7",
+    pos = {x=0,y=0},
     cost = 10,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.secAbility == false then

@@ -10,6 +10,7 @@
 ------------MOD CODE -------------------------
 
 mod_dir = ''..SMODS.current_mod.path
+jojo_config = SMODS.current_mod.config
 
 --Load Sprites
 local sprite, load_error = SMODS.load_file("sprites.lua")
@@ -20,8 +21,7 @@ else
 end
 
 --Load Joker Files
-local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
-for _,file in ipairs(standFiles) do
+load_Joker = function (file)
     sendDebugMessage("The File is:"..file)
     local joker, load_error = SMODS.load_file("Jokers/"..file)
     if load_error then
@@ -38,6 +38,20 @@ for _,file in ipairs(standFiles) do
         end
     end
 end
+
+local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
+for _,file in ipairs(standFiles) do
+    if file == "part7.lua" then
+        if jojo_config.part_seven == true then
+            load_Joker(file)
+        end
+    else
+        load_Joker(file)
+    end
+    
+end
+
+
 
 ----------------------------------------------
 ------------MOD CODE END----------------------
