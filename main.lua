@@ -44,8 +44,7 @@ end
 local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
 for _,file in ipairs(standFiles) do
     if file == "part7.lua" then
-        print(jojoker_config.part_seven)
-        if jojoker_config.part_seven == true then
+        if jojoker_config["manga_jokers"] then
             load_Joker(file)
         end
     else

@@ -1,1 +1,1 @@
-return {["part_seven"]=true}
+return {["manga_jokers"]=false,}
