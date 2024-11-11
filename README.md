@@ -9,4 +9,6 @@ Mod adds 7 stands: Star Platinum, Silver Chariot, Tusk, Harvest, Cream, The Worl
 
 All have Secret Abilities that activate when a certain action is completed. Hint in description
 
+Manga Jokers can be enabled in the config
+
 More jokers and other stuff will be added eventually 
