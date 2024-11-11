@@ -1,0 +1,1 @@
+return {["manga_jokers"]=false,}
