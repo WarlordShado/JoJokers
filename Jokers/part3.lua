@@ -6,7 +6,6 @@ local star_platinum = {
     atlas = "JoJokers",
     rarity = 2,
     unlocked = true,
-    discovered = true,
     blueprint_compat = true,
     eternal_compat = true,
     pos = {x = 0, y = 0},
@@ -74,7 +73,6 @@ local sliver_chariot = {
         return {vars = {card.ability.extra.mult,card.ability.extra.chips,card.ability.extra.chip_gain,card.ability.extra.mult_gain,card.ability.extra.Xmult,card.ability.extra.secAbility,card.ability.extra.secAbilityText}}
     end,
     rarity = 2,
-    discovered = true,
     atlas = "JoJokers",
     pos = {x=4,y=0},
     cost = 4,
@@ -210,72 +208,67 @@ local cream = {
     loc_txt = {
         name = "Cream",
         text = {
-            "{C:attention}#2#/#1#{} chance to destroy a random card when scored",
-            "{C:inactive}(Max of 3 per hand){}",
-            "{C:attention}#4#{}"
+            "{C:mult}Destroy{} the first card on every hand",
+            "{C:attention}#2#{}"
         }
     },
-    config = {extra = {odds = 5,secAbility = false,secAbilityText="Destroy a Blue Card...",cardsDestroyed = 0,activateSec = false}},
+    config = {extra = {secAbility = false,secAbilityText="Destroy a Blue Card...",cardsDestroyed = 0,deactivateDestroy = false}},
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.odds,(G.GAME.probabilities.normal or 1),card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.cardsDestroyed,card.ability.extra.activateSec}}
+        return {vars = {card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.cardsDestroyed,card.ability.extra.deactivateDestroy}}
     end,
-    rarity = 2,
+    rarity = 3,
     atlas = "JoJokers",
     pos = {x=4,y=4},
     cost = 10,
     calculate = function (self,card,context)
-        if context.destroying_card then
-            local currentCard = 1
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.2,
-                func = function() 
-                    if pseudorandom('cream') < G.GAME.probabilities.normal / card.ability.extra.odds then
-                        if context.full_hand[currentCard].seal == "Blue" and card.ability.extra.secAbility == false then
-                            card.ability.extra.activateSec = true
-                        end
-                        context.full_hand[currentCard]:shatter()
-                        card.ability.extra.cardsDestroyed = card.ability.extra.cardsDestroyed + 1
-                    end
-                    currentCard = currentCard + 1
-            return true end }))
-
-            return {
-                remove= true
-            }
-        end
-
-        if context.after and card.ability.extra.secAbility == true then
-            G.E_MANAGER:add_event(Event({func = function()
-                card:juice_up(0.8, 0.8)
-            return true end }))
-
-            if card.ability.extra.cardsDestroyed % 10 == 0 then
-                local checkCard = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_black_hole')
-                checkCard:set_edition({negative = true},true)
-                checkCard:add_to_deck()
-                G.consumeables:emplace(checkCard)
-
-                return {
-                    message = "Embrace the Void!"
-                }
+        if context.before then
+            card.ability.extra.deactivateDestroy = false
+            if card.ability.extra.secAbility == false then
+                if context.full_hand[1].seal == "Blue"then
+                    card.ability.extra.secAbility = true
+                    card.ability.extra.secAbilityText = "Every 4 cards destoryed, spawn a negative black hole"
+    
+                    G.E_MANAGER:add_event(Event({func = function()
+                        card:juice_up(0.8, 0.8)
+                    return true end }))
+    
+                    return {
+                        message = "Secert Ability Active!"
+                    }
+                end
             end
         end
 
-        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.secAbility == false then
-            if card.ability.extra.activateSec == true then
-                card.ability.extra.secAbility = true
-                card.ability.extra.secAbilityText = "Every 10 cards destoryed, spawn a negative black hole"
+        if context.destroying_card and card.ability.extra.deactivateDestroy == false then
+            card.ability.extra.deactivateDestroy = true
+            card.ability.extra.cardsDestroyed = card.ability.extra.cardsDestroyed + 1
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Obliterate!",colour=G.C.PURPLE})
+            
+            return {
+                remove = true
+            }
+        end
 
+        if context.after and not context.repetition then
+            if card.ability.extra.secAbility == true then
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))
 
-                return {
-                    message = "Secert Ability Active!"
-                }
+                if card.ability.extra.cardsDestroyed % 4 == 0 then
+                    local checkCard = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_black_hole')
+                    checkCard:set_edition({negative = true},true)
+                    checkCard:add_to_deck()
+                    G.consumeables:emplace(checkCard)
+                    play_sound('explosion_buildup1')
+                    return {
+                        message = "Embrace the Void!"
+                    }
+                end
             end
+            
         end
+
     end
 }
 

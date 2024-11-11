@@ -16,7 +16,6 @@ local tusk = {
         return {vars = {card.ability.extra.maxRetrig,(G.GAME.probabilities.normal or 1), card.ability.extra.odds,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.totalSpins,card.ability.extra.editionOdds}}
     end,
     rarity = 3,
-    discovered = true,
     atlas = "JoJokers7",
     pos = {x=0,y=0},
     cost = 10,

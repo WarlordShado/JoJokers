@@ -1,1 +1,1 @@
-return {["part_seven"]=false}
+return {["part_seven"]=true}
