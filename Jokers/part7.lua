@@ -1,6 +1,5 @@
 --Part 7 Stands
 
-
 local tusk = {
     key ="tusk",
     loc_txt = {

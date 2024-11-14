@@ -20,6 +20,7 @@ local crazy_diamond = {
     rarity = 3,
     atlas = "JoJokers",
     pos = {x=0,y=5},
+    blueprint_compat = false,
     cost = 6,
     calculate = function (self,card,context)
         if context.remove_playing_cards then
@@ -66,8 +67,6 @@ local crazy_diamond = {
                 }
             end
         end
-
-        
     end
 }
 

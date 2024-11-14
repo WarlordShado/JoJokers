@@ -12,6 +12,18 @@
 mod_dir = ''..SMODS.current_mod.path
 jojoker_config = SMODS.current_mod.config
 
+--Below will be used eventually 
+discardHand = function()
+    local anySelect = false
+
+    for i, selectedCard in ipairs(G.hand.cards) do
+        G.hand:add_to_highlighted(selectedCard, true)
+        table.remove(G.hand.card, i)
+        anySelect = true
+    end
+    if anySelect then G.FUNCS.discard_cards_from_highlighted(nil, true) end
+end
+
 --Load Sprites
 local sprite, load_error = SMODS.load_file("sprites.lua")
 if load_error then
