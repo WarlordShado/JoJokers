@@ -29,7 +29,7 @@ local redFury = {
         if next(find_joker("magic_red")) then
             if next(parts._3) and next(parts._2) then
                 local _redFury = SMODS.merge_lists(parts._2,parts._3)
-                print(#_redFury)
+                
                 --local isRedFury = true
                 local kingCounter = 0
                 local queenCounter = 0
@@ -39,7 +39,7 @@ local redFury = {
                     if rank.key =="King" and (_card:is_suit("Hearts") or _card:is_suit("Diamonds")) then kingCounter = kingCounter + 1 end
                     if rank.key =="Queen" and (_card:is_suit("Hearts") or _card:is_suit("Diamonds")) then queenCounter = queenCounter + 1 end
                 end
-                print(kingCounter.." "..queenCounter)
+                
                 if ((kingCounter == 3 and queenCounter == 2) or (kingCounter == 2 and queenCounter == 3)) then return {_redFury} end
             end
         end
