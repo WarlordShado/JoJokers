@@ -10,19 +10,38 @@ local star_platinum = {
     eternal_compat = true,
     pos = {x = 0, y = 0},
     cost = 7,
-    config = {extra = {chips = 5, basechips = 5,spflag = true}},
+    config = {extra = {chips = 5, basechips = 5,secAbility = false,secAbilityText = "Achieve 50 power in 1 hand",hands=5,Xmult=0,currentPower=0,spflag = true,timeStopActive=false}},
     loc_txt = {
         name = "Star Platinum{}",
         text = {
             "Each {C:attention}scored card{} gives {C:blue}+#1# Chips{}",
             "Increases by {C:blue}#2#{} for each {C:attention}consecutive card",
             "{C:attention}scored{} without {C:red}discarding{}",
+            "{C:attention}#5#{}"
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {card.ability.extra.chips, card.ability.extra.basechips,card.ability.extra.spflag}}
+        return {vars = {
+        card.ability.extra.chips, 
+        card.ability.extra.basechips,
+        card.ability.extra.spflag,
+        card.ability.extra.secAbility,
+        card.ability.extra.secAbilityText,
+        card.ability.extra.hands,
+        card.ability.extra.Xmult,
+        card.ability.extra.currentPower,
+        card.ability.extra.timeStopActive
+        }}
     end,
     calculate = function(self, card, context)
+
+        local getMult = function(discards)
+            if discards <= 1 then
+                return 1.5
+            end
+            return discards
+        end
+
         if context.individual and context.cardarea == G.play then
             card.ability.extra.spflag = false
             if not context.other_card.debuff then
@@ -33,6 +52,8 @@ local star_platinum = {
                     card:juice_up(0.8, 0.8)
                 return true end }))
 
+                card.ability.extra.currentPower = card.ability.extra.currentPower + card.ability.extra.chips
+
                 return{
                     message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}},
                     chips = value1,
@@ -40,6 +61,42 @@ local star_platinum = {
                 }
             end
         end
+
+        if context.before then
+            if G.GAME.current_round.hands_left == 0 then 
+                card.ability.extra.timeStopActive = true
+                local currentDiscards = G.GAME.current_round.discards_left
+                ease_discard(-currentDiscards,nil,true)
+                ease_hands_played(card.ability.extra.hands)
+                card.ability.extra.Xmult = getMult(currentDiscards)
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "The World!"})
+            end
+        end
+
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint then
+            card.ability.extra.timeStopActive = false
+            card.ability.extra.Xmult = 0
+        end
+
+        if context.joker_main then
+            if card.ability.extra.secAbility == false then
+                if card.ability.extra.currentPower >= 50 then
+                    card.ability.extra.secAbility = true
+                    card.ability.extra.secAbilityText = "One final hand of the round,Turn all discards into Xmult and gain "..card.ability.extra.hands.." hands"
+                    return{
+                        message="Secert Ability Active!"
+                    }
+                else
+                    card.ability.extra.currentPower = 0
+                end
+            elseif card.ability.extra.timeStopActive == true then 
+                return {
+                    message = localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+                    Xmult_mod = card.ability.extra.Xmult
+                }
+            end
+        end
+
         if context.discard and card.ability.extra.spflag == false and not context.blueprint then
             card.ability.extra.spflag = true
             card.ability.extra.chips = card.ability.extra.basechips
@@ -68,7 +125,7 @@ local magician_red = {
             "{C:attention}#3#{}"
         }
     },
-    config = {extra = {Xmult = 3,secAbility = false,secAbilityText = "Play a full house with 3 Caring Kings and 2 Rich Queens...",odds = 2}},
+    config = {extra = {Xmult = 3,secAbility = false,secAbilityText = "Play a house of Rich and Caring Royals",odds = 2}},
     loc_vars = function(self,info_queue,card)
         return {vars = {card.ability.extra.Xmult,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.odds,(G.GAME.probabilities.normal or 1)}}
     end,
@@ -77,14 +134,14 @@ local magician_red = {
     pos = {x=1,y=0},
     cost = 4,
     calculate = function (self,card,context)   
-        if context.before and next(context.poker_hands['jojo_RedFury']) and not context.blueprint and card.ability.extra.secAbility == false then
+        if context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint and card.ability.extra.secAbility == false then
             card.ability.extra.secAbility = true
             card.ability.extra.secAbilityText = "When a Red Fury is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
             return {
                 message = "Secert Ability Active!"
             }
-        elseif context.before and next(context.poker_hands['jojo_RedFury']) and not context.blueprint then
-            card.ability.extra.secAbilityText = "When a Red Fury is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
+        elseif context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint then
+            card.ability.extra.secAbilityText = "When Cross Fire Hurricane is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
             if pseudorandom("magicred") < G.GAME.probabilities.normal/card.ability.extra.odds then
                 return {
                     card = card,
