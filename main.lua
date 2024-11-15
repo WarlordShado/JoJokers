@@ -3,7 +3,7 @@
 --- MOD_ID: JoJokers
 --- MOD_AUTHOR: [Warlord Shado, Modlich, Maratby]
 --- MOD_DESCRIPTION: JoJo Meets Balatro!
---- DEPENDENCIES: [Steamodded>=1.0.0~ALPHA-0812d]
+--- DEPENDENCIES: [Talisman>=2.0.0-beta8,Steamodded>=1.0.0~ALPHA-0812d]
 --- BADGE_COLOR: eb4eac
 --- PREFIX: jojo
 ----------------------------------------------
@@ -34,7 +34,6 @@ end
 
 --Load Joker Files
 load_Joker = function (file)
-    print(file)
     sendDebugMessage("The File is:"..file)
     local joker, load_error = SMODS.load_file("Jokers/"..file)
     if load_error then
@@ -55,6 +54,7 @@ end
 
 local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
 for _,file in ipairs(standFiles) do
+    print(file)
     if file == "part7.lua" then
         if jojoker_config["manga_jokers"] then
             load_Joker(file)
@@ -62,8 +62,28 @@ for _,file in ipairs(standFiles) do
     else
         load_Joker(file)
     end
-    
 end
+
+local pokerFile = NFS.getDirectoryItems(mod_dir.."PokerHands")
+for _,file in ipairs(pokerFile) do
+    sendDebugMessage("The File is:"..file)
+    local pokerHand, load_error = SMODS.load_file("PokerHands/"..file)
+    if load_error then
+        sendDebugMessage ("The error is: "..load_error)
+    else
+        local curr_hands = pokerHand()
+        if curr_hands.init then  curr_hands:init() end
+
+        if curr_hands.list and #curr_hands.list > 0 then
+            for i, item in ipairs(curr_hands.list) do
+                print(file)
+                SMODS.PokerHand(item)
+            end
+        end
+    end
+end
+
+
 
 
 

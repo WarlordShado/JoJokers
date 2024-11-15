@@ -56,6 +56,65 @@ local star_platinum = {
     end
 }
 
+local magician_red = {
+    key ="magician_red",
+    name = "magic_red",
+    loc_txt = {
+        name = "Magician's Red",
+        text = {
+            "If held in hand cards",
+            "are only {C:mult}Hearts{} and",
+            "{C:attention}Diamonds, {X:mult,C:white}X#1#{} mult",
+            "{C:attention}#3#{}"
+        }
+    },
+    config = {extra = {Xmult = 3,secAbility = false,secAbilityText = "Play a full house with 3 Caring Kings and 2 Rich Queens...",odds = 2}},
+    loc_vars = function(self,info_queue,card)
+        return {vars = {card.ability.extra.Xmult,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.odds,(G.GAME.probabilities.normal or 1)}}
+    end,
+    rarity = 2,
+    atlas = "JoJokers",
+    pos = {x=1,y=0},
+    cost = 4,
+    calculate = function (self,card,context)   
+        if context.before and next(context.poker_hands['jojo_RedFury']) and not context.blueprint and card.ability.extra.secAbility == false then
+            card.ability.extra.secAbility = true
+            card.ability.extra.secAbilityText = "When a Red Fury is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
+            return {
+                message = "Secert Ability Active!"
+            }
+        elseif context.before and next(context.poker_hands['jojo_RedFury']) and not context.blueprint then
+            card.ability.extra.secAbilityText = "When a Red Fury is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
+            if pseudorandom("magicred") < G.GAME.probabilities.normal/card.ability.extra.odds then
+                return {
+                    card = card,
+                    level_up = true,
+                    message = localize('k_level_up_ex')
+                }
+            end
+        end
+
+        if context.joker_main then
+            local red_suits = 0
+            local all_cards = 0
+
+            for k, _card in ipairs(G.hand.cards) do
+                all_cards = all_cards + 1
+                if _card:is_suit('Hearts', nil, true) or _card:is_suit('Diamonds', nil, true) then
+                    red_suits = red_suits + 1
+                end
+            end
+
+            if red_suits == all_cards then
+                return {
+                    message = localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+                    Xmult_mod = card.ability.extra.Xmult
+                }
+            end
+        end
+    end
+}
+
 local sliver_chariot = {
     key ="silver_chariot",
     loc_txt = {
@@ -141,7 +200,7 @@ local the_world = {
         name = "The World",
         text = {
             "If a {C:attention}Boss Blind{} is defeated with at least ",
-            "{X:mult,C:white}#2#x{} the score requirement,",
+            "{X:mult,C:white}X#2#{} the score requirement,",
             "dont advance an Ante",
             "{C:inactive}(Can only retrigger each ante once){}",
             "{C:attention}#4#{}"
@@ -274,5 +333,5 @@ local cream = {
 
 return {
     name = "Part 3 Stands",
-    list = {star_platinum,sliver_chariot,cream,the_world}
+    list = {star_platinum,magician_red,sliver_chariot,cream,the_world}
 }
