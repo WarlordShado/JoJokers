@@ -1,36 +1,50 @@
 --Part 7 Stands
 
-
 local tusk = {
     key ="tusk",
+    name = "Tusk",
     loc_txt = {
         name = "Tusk",
         text = {
             "{C:attention}#2# to #3#{} chance to {C:attention}Retrigger{} a card",
             "{C:inactive}Max of #1# Times{}",
-            "{C:attention}#5#{}"
         }
     },
-    config = {extra = {maxRetrig = 5,odds = 3,secAbility = false,secAbilityText="The 13th Fibonacci...",totalSpins = 0,editionOdds=8}},
+    config = {extra = {
+        maxRetrig = 5,
+        odds = 3,
+        totalSpins = 0,
+        editionOdds=8}
+    },
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.maxRetrig,(G.GAME.probabilities.normal or 1), card.ability.extra.odds,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.totalSpins,card.ability.extra.editionOdds}}
+        local vars = {
+            card.ability.extra.maxRetrig,
+            (G.GAME.probabilities.normal or 1),
+            card.ability.extra.odds,
+            card.ability.extra.totalSpins,
+            card.ability.extra.editionOdds}
+        
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "The 13th Fibonacci...",
+            {"1/" .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
+        )}
     end,
     rarity = 3,
     atlas = "JoJokers7",
     pos = {x=0,y=0},
     cost = 10,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.secAbility == false then
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and self.secAbility == false then
             if card.ability.extra.totalSpins >= 144 then
-                card.ability.extra.secAbility = true
-                card.ability.extra.secAbilityText = "1/" .. card.ability.extra.editionOdds .. " chance to add a random edition to a played card"
-
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))
                 
                 return {
-                    message = "Secret Ability Active!"
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                 }
             end
         end
@@ -57,10 +71,9 @@ local tusk = {
         if context.cardarea == G.play and context.repetition and not context.repetition_only then
             local isDone = false
             local repeats = 0
-            local mes = "Spin!"
 
-            if card.ability.extra.secAbility == true and not context.other_card.edition and addEdition(context.other_card) then
-                mes = "Infinite Rotation!"
+            if self.secAbility == true and not context.other_card.edition and addEdition(context.other_card) then
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Infinte Rotation!"})
             end
             
             while isDone == false and repeats <= card.ability.extra.maxRetrig do
@@ -77,7 +90,7 @@ local tusk = {
             return true end }))
 
             return{
-                message = mes,
+                message = "Spin!",
                 repetitions = repeats,
                 card = context.other_card
             }
