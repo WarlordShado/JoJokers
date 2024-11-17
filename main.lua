@@ -12,8 +12,61 @@
 mod_dir = ''..SMODS.current_mod.path
 jojoker_config = SMODS.current_mod.config
 
---Below will be used eventually 
-discardHand = function()
+JOJO = {}
+
+JOJO.REMOVE_JOKER = function(self,card)
+    play_sound('tarot1')
+    card.T.r = -0.2
+    card:juice_up(0.3, 0.4)
+    card.states.drag.is = true
+    card.children.center.pinch.x = true
+    G.E_MANAGER:add_event(Event({
+        trigger = 'after', delay = 0.3, blockable = false,
+        func = function()
+            G.jokers:remove_card(self)
+            card:remove()
+            card = nil
+            return true
+        end
+    }))
+    return true
+end
+
+JOJO.GENERATE_HINT = function(self,hintText,secAbilityText)
+    local content = {}
+    local textToUse
+    local color
+    
+    if self.secAbility == true  then
+        textToUse = secAbilityText
+        color = G.C.SECONDARY_SET.Planet
+    else
+        textToUse = hintText
+        color = G.C.UI.TEXT_INACTIVE
+    end
+
+    if type(textToUse) == "table" then
+        for i=1,#textToUse do
+            content[#content + 1] = {n=G.UIT.R,config={align = "cm"},nodes={
+                {n=G.UIT.T, config={text = textToUse[i], colour = color, scale = 0.32}},
+            }}
+        end
+    else
+        content[1] = {n=G.UIT.R,config={align = "cm"},nodes={}}
+        content[1].nodes={
+            {n=G.UIT.T, config={text = "("..textToUse..")", colour = color, scale = 0.32}},
+        }
+    end
+    return {{n=G.UIT.C, config={align = "cm", minh = 0.4}, nodes=content}}
+end
+
+JOJO.ACTIVATE_SECRET_ABILITY = function(self)
+    self.secAbility = true
+
+    return "Secert Ability Active"
+end
+
+JOJO.DISCARD_HAND = function() --Below will be used eventually 
     local anySelect = false
 
     for i, selectedCard in ipairs(G.hand.cards) do
@@ -46,6 +99,7 @@ load_Joker = function (file)
             for i, item in ipairs(curr_jokers.list) do
                 item.discovered = true
                 item.unlocked = true
+                item.secAbility = false
                 SMODS.Joker(item)
             end
         end

@@ -5,33 +5,45 @@ local star_platinum = {
     name = "Star Platinum",
     atlas = "JoJokers",
     rarity = 2,
-    unlocked = true,
     blueprint_compat = true,
     eternal_compat = true,
     pos = {x = 0, y = 0},
     cost = 7,
-    config = {extra = {chips = 5, basechips = 5,secAbility = false,secAbilityText = "Achieve 50 power in 1 hand",hands=5,Xmult=0,currentPower=0,spflag = true,timeStopActive=false}},
+    config = {extra = {
+        chips = 5,
+        basechips = 5,
+        hands=5,
+        Xmult=0,
+        currentPower=0,
+        spflag = true,
+        timeStopActive=false}
+    },
     loc_txt = {
         name = "Star Platinum{}",
         text = {
             "Each {C:attention}scored card{} gives {C:blue}+#1# Chips{}",
             "Increases by {C:blue}#2#{} for each {C:attention}consecutive card",
             "{C:attention}scored{} without {C:red}discarding{}",
-            "{C:attention}#5#{}"
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {
+        local vars = {
         card.ability.extra.chips, 
         card.ability.extra.basechips,
         card.ability.extra.spflag,
-        card.ability.extra.secAbility,
-        card.ability.extra.secAbilityText,
         card.ability.extra.hands,
         card.ability.extra.Xmult,
         card.ability.extra.currentPower,
         card.ability.extra.timeStopActive
-        }}
+        }
+
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Achieve 50 power in 1 hand...",
+            {"One final hand of the round,","Turn all discards into X Mult (Current:"..card.ability.extra.Xmult..")"," and gain "..card.ability.extra.hands.." hands"}
+        )}
     end,
     calculate = function(self, card, context)
 
@@ -62,7 +74,7 @@ local star_platinum = {
             end
         end
 
-        if context.before then
+        if context.before and self.secAbility == true then
             if G.GAME.current_round.hands_left == 0 then 
                 card.ability.extra.timeStopActive = true
                 local currentDiscards = G.GAME.current_round.discards_left
@@ -79,12 +91,10 @@ local star_platinum = {
         end
 
         if context.joker_main then
-            if card.ability.extra.secAbility == false then
+            if self.secAbility == false then
                 if card.ability.extra.currentPower >= 50 then
-                    card.ability.extra.secAbility = true
-                    card.ability.extra.secAbilityText = "One final hand of the round,Turn all discards into Xmult and gain "..card.ability.extra.hands.." hands"
-                    return{
-                        message="Secert Ability Active!"
+                    return {
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                     }
                 else
                     card.ability.extra.currentPower = 0
@@ -115,33 +125,47 @@ local star_platinum = {
 
 local magician_red = {
     key ="magician_red",
-    name = "magic_red",
+    name = "Magician's Red",
     loc_txt = {
         name = "Magician's Red",
         text = {
             "If held in hand cards",
             "are only {C:mult}Hearts{} and",
             "{C:attention}Diamonds, {X:mult,C:white}X#1#{} mult",
-            "{C:attention}#3#{}"
         }
     },
-    config = {extra = {Xmult = 3,secAbility = false,secAbilityText = "Play a house of Rich and Caring Royals",odds = 2}},
+    config = {extra = {
+        Xmult = 3,
+        odds = 2}
+    },
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.Xmult,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.odds,(G.GAME.probabilities.normal or 1)}}
+        local vars = {
+            card.ability.extra.Xmult,
+            card.ability.extra.secAbility,
+            card.ability.extra.secAbilityText,
+            card.ability.extra.odds,
+            (G.GAME.probabilities.normal or 1)
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Play a house of Rich and Caring Royals",
+            {"When Cross Fire Hurricane is played, ",
+            G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
+        }
+        )}
     end,
     rarity = 2,
     atlas = "JoJokers",
     pos = {x=1,y=0},
     cost = 4,
     calculate = function (self,card,context)   
-        if context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint and card.ability.extra.secAbility == false then
-            card.ability.extra.secAbility = true
-            card.ability.extra.secAbilityText = "When a Red Fury is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
+        if context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint and self.secAbility == false then
             return {
-                message = "Secert Ability Active!"
+                message = JOJO.ACTIVATE_SECRET_ABILITY(self)
             }
         elseif context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint then
-            card.ability.extra.secAbilityText = "When Cross Fire Hurricane is played, "..G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
             if pseudorandom("magicred") < G.GAME.probabilities.normal/card.ability.extra.odds then
                 return {
                     card = card,
@@ -174,6 +198,7 @@ local magician_red = {
 
 local sliver_chariot = {
     key ="silver_chariot",
+    name = "Silver Chariot",
     loc_txt = {
         name = "Silver Chariot",
         text = {
@@ -181,19 +206,39 @@ local sliver_chariot = {
             "if played hand",
             "contains a {C:attention}Straight Flush{}",
             "{C:inactive}(Currently {C:chips}+#2#{} Chips, {C:mult}+#1#{} Mult){}",
-            "{C:attention}#7#{}"
         }
     },
-    config = {extra = {mult = 20,chips = 50,mult_gain = 5, chip_gain = 25,Xmult=2.5,secAbility = false,secAbilityText = "Send the Steel Straight Through to unlock full potential..."}},
+    config = {extra = {
+        mult = 20,
+        chips = 50,
+        mult_gain = 5,
+        chip_gain = 25,
+        Xmult=2.5
+    }},
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.mult,card.ability.extra.chips,card.ability.extra.chip_gain,card.ability.extra.mult_gain,card.ability.extra.Xmult,card.ability.extra.secAbility,card.ability.extra.secAbilityText}}
+        local vars = {
+            card.ability.extra.mult,
+            card.ability.extra.chips,
+            card.ability.extra.chip_gain,
+            card.ability.extra.mult_gain,
+            card.ability.extra.Xmult,
+            card.ability.extra.secAbility,
+            card.ability.extra.secAbilityText
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Send the Steel Straight Through...",
+            "All played steel cards give X" .. card.ability.extra.Xmult .. " mult"
+        )}
     end,
     rarity = 2,
     atlas = "JoJokers",
     pos = {x=4,y=0},
     cost = 4,
     calculate = function (self,card,context)   
-        if context.before and next(context.poker_hands['Straight Flush']) and not context.blueprint and card.ability.extra.secAbility == false then
+        if context.before and next(context.poker_hands['Straight Flush']) and not context.blueprint and self.secAbility == false then
             local steel = 0
             for i = 1,#context.scoring_hand do
                 if context.scoring_hand[i].ability.name == 'Steel Card' then
@@ -201,21 +246,18 @@ local sliver_chariot = {
                 end
             end
             if steel >= 5 then
-                card.ability.extra.secAbility = true;
-                card.ability.extra.secAbilityText = "All played steel cards give X" .. card.abilit.extra.Xmult .. " mult"
-
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))
 
                 return {
-                    message = 'Secret Ability Active!'
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                 }
             end
         end
 
         if context.cardarea == G.play and context.individual and not context.other_card.debuff and not context.end_of_round and
-            context.other_card.ability.name == 'Steel Card' and card.ability.extra.secAbility == true then
+            context.other_card.ability.name == 'Steel Card' and self.secAbility == true then
 
             return {
                 message = localize{type = 'variable', key = 'a_xmult', vars = {card.ability.extra.Xmult}}, 
@@ -253,6 +295,7 @@ local sliver_chariot = {
 
 local the_world = {
     key ="world",
+    name = "The World",
     loc_txt = {
         name = "The World",
         text = {
@@ -260,12 +303,34 @@ local the_world = {
             "{X:mult,C:white}X#2#{} the score requirement,",
             "dont advance an Ante",
             "{C:inactive}(Can only retrigger each ante once){}",
-            "{C:attention}#4#{}"
         }
     },
-    config = {extra = {ante_reduction = 1,scoreRec = 2,secAbility = false,secAbilityText="Halt Time for 5 seconds...",reducTriggered = false,seconds = 0,repeats = 2,abilityStopper = false}},
+    config = {extra = {
+        ante_reduction = 1,
+        scoreRec = 2,
+        reducTriggered = false,
+        seconds = 0,
+        repeats = 2,
+        abilityStopper = false}
+    },
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.ante_reduction,card.ability.extra.scoreRec,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.reducTriggered,card.ability.extra.seconds,card.ability.extra.repeats,card.ability.extra.abilityStopper}}
+        local vars = {
+            card.ability.extra.ante_reduction,
+            card.ability.extra.scoreRec,
+            card.ability.extra.secAbility,
+            card.ability.extra.secAbilityText,
+            card.ability.extra.reducTriggered,
+            card.ability.extra.seconds,
+            card.ability.extra.repeats,
+            card.ability.extra.abilityStopper
+        }
+
+        return {vars = vars,
+            main_end = JOJO.GENERATE_HINT(
+                self,
+                "Halt Time for 5 seconds...",
+                "Retrigger all Aces Twice"
+            )}
     end,
     rarity = 4,
     atlas = "JoJokers",
@@ -294,13 +359,11 @@ local the_world = {
                         card.ability.extra.abilityStopper = true
                         ante_mod = ante_mod - card.ability.extra.ante_reduction
                         ease_ante(ante_mod)
-                        if card.ability.extra.seconds >= 5 and card.ability.extra.secAbility == false then
-                            card.ability.extra.secAbility = true
-                            card.ability.extra.secAbilityText = "Retrigger all Aces Twice"
+                        if card.ability.extra.seconds >= 5 and self.secAbility == false then
                             return {
-                                message = "You have achieved Greatness!"
+                                message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                             }
-                        elseif card.ability.extra.secAbility == false then
+                        elseif self.secAbility == false then
                             card.ability.extra.seconds = card.ability.extra.seconds + 1
                         end
                         return {
@@ -321,16 +384,31 @@ local the_world = {
 
 local cream = {
     key ="cream",
+    name = "Cream",
     loc_txt = {
         name = "Cream",
         text = {
             "{C:mult}Destroy{} the first card on every hand",
-            "{C:attention}#2#{}"
+            
         }
     },
-    config = {extra = {secAbility = false,secAbilityText="Destroy a Blue Card...",cardsDestroyed = 0,deactivateDestroy = false}},
+    config = {extra = {
+        cardsDestroyed = 0,
+        deactivateDestroy = false}
+    },
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.cardsDestroyed,card.ability.extra.deactivateDestroy}}
+        local vars = {
+            card.ability.extra.cardsDestroyed,
+            card.ability.extra.deactivateDestroy
+        }
+        return {
+            vars = vars,
+            main_end = JOJO.GENERATE_HINT(
+                self,
+                "Destroy a Blue Card...",
+                {"Every 4 cards destoryed,",
+                "spawn a negative black hole"}
+            )}
     end,
     rarity = 3,
     atlas = "JoJokers",
@@ -339,17 +417,14 @@ local cream = {
     calculate = function (self,card,context)
         if context.before then
             card.ability.extra.deactivateDestroy = false
-            if card.ability.extra.secAbility == false then
+            if self.secAbility == false then
                 if context.full_hand[1].seal == "Blue"then
-                    card.ability.extra.secAbility = true
-                    card.ability.extra.secAbilityText = "Every 4 cards destoryed, spawn a negative black hole"
-    
                     G.E_MANAGER:add_event(Event({func = function()
                         card:juice_up(0.8, 0.8)
                     return true end }))
     
                     return {
-                        message = "Secert Ability Active!"
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                     }
                 end
             end
@@ -366,7 +441,7 @@ local cream = {
         end
 
         if context.after and not context.repetition then
-            if card.ability.extra.secAbility == true then
+            if self.secAbility == true then
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))

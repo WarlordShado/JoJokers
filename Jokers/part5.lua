@@ -2,6 +2,7 @@
 
 local kraftwork = {
     key ="kraftwork",
+    name="Kraftwork",
     loc_txt = {
         name = "Kraft Work",
         text = {
@@ -11,11 +12,29 @@ local kraftwork = {
             "{C:mult}Can only gain 3/4 of total blind score{}"
         }
     },
-    config = {extra = {overflow = 0,secAbility = false,abilityStopper=false,firstTimeStopper = true}},
+    config = {extra = {
+        overflow = 0,
+        secAbility = false,
+        abilityStopper=false,
+        firstTimeStopper = true}
+    },
     loc_vars = function(self,info_queue,card)
-        return {vars = {card.ability.extra.overflow,card.ability.extra.secAbility,card.ability.extra.secAbilityText,card.ability.extra.firstTimeStopper,card.ability.extra.abilityStopper}}
+        local vars = {
+            card.ability.extra.overflow,
+            card.ability.extra.secAbility,
+            card.ability.extra.secAbilityText,
+            card.ability.extra.firstTimeStopper,
+            card.ability.extra.abilityStopper}
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "WIP",
+            "Add a Gold Seal to first played gold card"
+        )}
     end,
     rarity = 3,
+    
     atlas = "JoJokers",
     pos = {x=4,y=10},
     cost = 6,
