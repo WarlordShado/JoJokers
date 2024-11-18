@@ -10,7 +10,7 @@
 ------------MOD CODE -------------------------
 
 mod_dir = ''..SMODS.current_mod.path
-jojoker_config = SMODS.current_mod.config
+jojo_config = SMODS.current_mod.config
 
 JOJO = {}
 
@@ -63,7 +63,7 @@ end
 JOJO.ACTIVATE_SECRET_ABILITY = function(self)
     self.secAbility = true
 
-    return "Secert Ability Active"
+    return "Secret Ability Active"
 end
 
 JOJO.DISCARD_HAND = function() --Below will be used eventually 
@@ -108,9 +108,8 @@ end
 
 local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
 for _,file in ipairs(standFiles) do
-    print(file)
     if file == "part7.lua" then
-        if jojoker_config["manga_jokers"] then
+        if jojo_config.manga_joker then
             load_Joker(file)
         end
     else

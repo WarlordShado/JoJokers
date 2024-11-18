@@ -42,7 +42,7 @@ local star_platinum = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "Achieve 50 power in 1 hand...",
-            {"One final hand of the round,","Turn all discards into X Mult (Current:"..card.ability.extra.Xmult..")"," and gain "..card.ability.extra.hands.." hands"}
+            {"One final hand of the round,","If currents chips is 100 or more","Turn all discards into X Mult"," and gain "..card.ability.extra.hands.." hands","Reset chips and X Mult at end of round"}
         )}
     end,
     calculate = function(self, card, context)
@@ -73,9 +73,8 @@ local star_platinum = {
                 }
             end
         end
-
         if context.before and self.secAbility == true then
-            if G.GAME.current_round.hands_left == 0 then 
+            if G.GAME.current_round.hands_left == 0 and card.ability.extra.chips >= 100 then 
                 card.ability.extra.timeStopActive = true
                 local currentDiscards = G.GAME.current_round.discards_left
                 ease_discard(-currentDiscards,nil,true)
@@ -86,8 +85,11 @@ local star_platinum = {
         end
 
         if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint then
-            card.ability.extra.timeStopActive = false
-            card.ability.extra.Xmult = 0
+            if card.ability.extra.timeStopActive == true then
+                card.ability.extra.chips = 0
+                card.ability.extra.timeStopActive = false
+                card.ability.extra.Xmult = 0
+            end
         end
 
         if context.joker_main then
@@ -106,7 +108,6 @@ local star_platinum = {
                 }
             end
         end
-
         if context.discard and card.ability.extra.spflag == false and not context.blueprint then
             card.ability.extra.spflag = true
             card.ability.extra.chips = card.ability.extra.basechips

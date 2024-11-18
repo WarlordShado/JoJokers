@@ -29,7 +29,7 @@ local tusk = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "The 13th Fibonacci...",
-            {"1/" .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
+            {"Flat 1/" .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
         )}
     end,
     rarity = 3,
@@ -98,7 +98,79 @@ local tusk = {
     end
 }
 
+local dirty_deeds = {
+    key ="d4c",
+    name = "D4C",
+    loc_txt = {
+        name = "Dirty Deeds Done Dirt Cheap",
+        text = {
+            "Upon {C:attention}Selling or Destroying{} a Card or Joker,",
+            "Respawn the Joker. Max of 3 times each ante",
+            "{C:inactive}(Respawns Left:#2# ){}"
+        }
+    },
+    config = {extra = {
+        maxRetrig = 3,
+        usedRetrigs = 3
+    }},
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.maxRetrig,
+            card.ability.extra.usedRetrigs
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Assemble a Saint",
+            "Evolve"
+        )}
+    end,
+    rarity = 2,
+    atlas = "JoJokers7",
+    pos = {x=0,y=2},
+    cost = 10,
+    blueprint_compat = false,
+    calculate = function (self,card,context)
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint then
+            card.ability.extra.usedRetrigs = card.ability.extra.maxRetrig
+            return {message = "Dirty Deeds Done Dirt Cheap!"}
+        end
+
+        if context.consumeable and card.ability.extra.usedRetrigs > 0 then
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    local card = copy_card(context.consumeable, nil)
+                    card:add_to_deck()
+                    G.consumeables:emplace(card)
+                    G.GAME.consumeable_buffer = 0
+                    return true
+                end}))  
+            card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
+        end
+
+        if context.selling_card and not context.blueprint and card.ability.extra.usedRetrigs > 0 then
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    local card = copy_card(context.card, nil)
+                    card:add_to_deck()
+                    if context.card.ability.set == "Joker" then
+                        G.jokers:emplace(card)
+                    else
+                        G.consumeables:emplace(card)
+                    end
+                    
+                    G.GAME.consumeable_buffer = 0
+                    return true
+                end}))  
+            card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
+        end
+    end
+}
+
 return {
     name="Part 7 Stands",
-    list={tusk}
+    list={tusk,dirty_deeds}
 }

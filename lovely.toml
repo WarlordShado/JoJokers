@@ -1,0 +1,25 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+#Override get_id() for GooGoo dolls
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = """
+    if self.ability.effect == 'Stone Card' and not self.vampired then
+        return -math.random(100, 1000000)
+    end
+"""
+position = "at"
+payload = """
+    if self.ability.effect == 'Stone Card' and not self.vampired then
+        return -math.random(100, 1000000)
+    elseif next(find_joker("GooGooDolls")) and self.base.id <= 10 then
+        local currentNumber = self.base.id
+        local reverseNums = {10,9,8,7,6,5,4,3,2}
+        return reverseNums[currentNumber - 1]
+    end
+"""
+match_indent = true
