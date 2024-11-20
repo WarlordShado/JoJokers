@@ -12,3 +12,5 @@ All have Secret Abilities that activate when a certain action is completed. Hint
 Manga Jokers can be enabled in the config
 
 More jokers and other stuff will be added eventually 
+
+This mod is very early in development and if you have to report a big or have a suggestion let us know on discord 
