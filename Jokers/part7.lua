@@ -104,8 +104,8 @@ local dirty_deeds = {
     loc_txt = {
         name = "Dirty Deeds Done Dirt Cheap",
         text = {
-            "Upon {C:attention}Selling or Destroying{} a Card or Joker,",
-            "Respawn the Joker. Max of 3 times each ante",
+            "Upon {C:attention}Selling, Destroying, or Using{} a Card or Joker,",
+            "Respawn the Joker. Max of {C:attention}#1#{} times each ante",
             "{C:inactive}(Respawns Left:#2# ){}"
         }
     },
@@ -138,16 +138,20 @@ local dirty_deeds = {
         end
 
         if context.consumeable and card.ability.extra.usedRetrigs > 0 then
-            G.E_MANAGER:add_event(Event({
-                func = function() 
-                    local card = copy_card(context.consumeable, nil)
-                    card:add_to_deck()
-                    G.consumeables:emplace(card)
-                    G.GAME.consumeable_buffer = 0
-                    return true
-                end}))  
-            card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
-            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
+            if context.consumeable.ability.name == "saintCorpse" then
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.EVOLVE(self,card,"j_jojo_d4c_love_train")})
+            else
+                G.E_MANAGER:add_event(Event({
+                    func = function() 
+                        local card = copy_card(context.consumeable, nil)
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        G.GAME.consumeable_buffer = 0
+                        return true
+                    end}))  
+                card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
+            end
         end
 
         if context.selling_card and not context.blueprint and card.ability.extra.usedRetrigs > 0 then
@@ -170,7 +174,144 @@ local dirty_deeds = {
     end
 }
 
+local dirty_deeds_love_train = {
+    key ="d4c_love_train",
+    name = "D4CLoveTrain",
+    loc_txt = {
+        name = "D4C: Love Train",
+        text = {
+            "Upon {C:attention}Selling, Destroying, or Using{} a Card or Joker,",
+            "Respawn the Joker. Max of {C:attention}#1#{} times each ante",
+            "{C:inactive}(Respawns Left:#2# ){}"
+        }
+    },
+    config = {extra = {
+        maxRetrig = 5,
+        usedRetrigs = 5,
+        odds = 5,
+        wasTriged = false
+    }},
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.maxRetrig,
+            card.ability.extra.usedRetrigs,
+            (G.GAME.probabilities.normal or 1),
+            card.ability.extra.odds,
+            card.ability.extra.wasTriged
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Evolves from Dirty Deeds",
+            {"At the start of a round",
+             "Add Misfortune Redirection to a random card",
+             "Changes at the end of the round"}
+        )}
+    end,
+    rarity = 4,
+    atlas = "JoJokers7",
+    pos = {x=2,y=2},
+    cost = 10,
+    blueprint_compat = false,
+    add_to_deck = function(self)
+        self.secAbility = true
+    end,
+    calculate = function (self,card,context)
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.wasTriged == false then
+            card.ability.extra.usedRetrigs = card.ability.extra.maxRetrig
+
+            local removeEdJoker = SMODS.Edition:get_edition_cards(G.jokers,false)
+            for i, joker in ipairs(removeEdJoker) do
+                if joker.edition.key == 'e_jojo_misfortune' then
+                    print("ran")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        func = function()
+                            joker.set_edition(joker)
+                            return true
+                        end
+                    }))
+                    break
+                end
+            end
+
+            local eligibleJokers = SMODS.Edition:get_edition_cards(G.jokers,true)
+            for i,joker in ipairs(eligibleJokers) do
+                print(joker.ability.name)
+                if joker.ability.name == "D4CLoveTrain" then
+                    table.remove(eligibleJokers,i)
+                    break
+                end
+            end
+
+            if #eligibleJokers > 0 then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    func = function()
+                        local selected_joker = pseudorandom_element(eligibleJokers, pseudoseed('misfortune'))
+                        selected_joker.set_edition(selected_joker, 'e_jojo_misfortune')
+                        return true
+                    end
+                }))
+            end
+            
+            card.ability.extra.wasTriged = true
+            return {message = "Dirty Deeds Done Dirt Cheap!"}
+        end
+
+        if context.ending_shop and card.ability.extra.wasTriged == true then
+            card.ability.extra.wasTriged = false
+        end
+
+        if context.consumeable and card.ability.extra.usedRetrigs > 0 then
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    local card = copy_card(context.consumeable, nil)
+                    card:add_to_deck()
+                    G.consumeables:emplace(card)
+                    G.GAME.consumeable_buffer = 0
+                    return true
+                end}))  
+            card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
+        end
+
+        local respawnCard  = function() 
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    local card = copy_card(context.card, nil)
+                    card:add_to_deck()
+                    if context.card.ability.set == "Joker" then
+                        G.jokers:emplace(card)
+                    else
+                        G.consumeables:emplace(card)
+                    end
+                    
+                    G.GAME.consumeable_buffer = 0
+                    return true
+                end}))  
+            card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
+        end
+
+        if context.selling_card and not context.blueprint then
+            if card.ability.extra.usedRetrigs > 0 then
+                respawnCard()
+            elseif context.card.ability.set == "Joker" and context.card.edition then
+                if context.card.edition.key == 'e_jojo_misfortune' then
+                    if pseudorandom('lovetrain') > G.GAME.probabilities.normal / card.ability.extra.odds then
+                        print("ran")
+                        respawnCard()
+                    end
+                end
+                
+            end
+        end
+    end
+}
+
 return {
     name="Part 7 Stands",
-    list={tusk,dirty_deeds}
+    list={tusk,dirty_deeds,dirty_deeds_love_train}
 }
