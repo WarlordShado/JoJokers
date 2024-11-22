@@ -340,7 +340,7 @@ local the_world = {
     blueprint_compat = false,
     calculate = function (self,card,context)
 
-        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.extra.secAbility == true then
+        if context.cardarea == G.play and context.repetition and not context.repetition_only and self.secAbility == true then
             if context.other_card.base.value == "Ace" then
                 return {
                     message = "Muda!",
