@@ -20,8 +20,8 @@ SMODS.Atlas({
 })
 
 SMODS.Atlas({
-    key = "Corpse",
-	path = "corpse.png",
+    key = "Consume",
+	path = "consume.png",
 	px = 71,
 	py = 95
 })

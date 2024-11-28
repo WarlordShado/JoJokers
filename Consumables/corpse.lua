@@ -9,10 +9,11 @@ local saint = {
       }
     },
     pos = { x = 0, y = 0 },
-    atlas = "Corpse",
-    cost = 3,
+    atlas = "Consume",
+    cost = 25,
     unlocked = true,
     discovered = true,
+    yes_pool_flag = "hasD4C",
     can_use = function()
       return next(find_joker("D4C"))
     end,

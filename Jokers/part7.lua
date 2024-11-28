@@ -131,6 +131,9 @@ local dirty_deeds = {
     pos = {x=0,y=2},
     cost = 10,
     blueprint_compat = false,
+    add_to_deck = function(self)
+		G.GAME.pool_flags.hasD4C = true
+	end,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint then
             card.ability.extra.usedRetrigs = card.ability.extra.maxRetrig
@@ -139,6 +142,7 @@ local dirty_deeds = {
 
         if context.consumeable and card.ability.extra.usedRetrigs > 0 then
             if context.consumeable.ability.name == "saintCorpse" then
+                G.GAME.pool_flags.hasD4C = false
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.EVOLVE(self,card,"j_jojo_d4c_love_train")})
             else
                 G.E_MANAGER:add_event(Event({
@@ -214,6 +218,7 @@ local dirty_deeds_love_train = {
     pos = {x=2,y=2},
     cost = 10,
     blueprint_compat = false,
+    no_pool_flag = false,
     add_to_deck = function(self)
         self.secAbility = true
     end,
@@ -301,7 +306,6 @@ local dirty_deeds_love_train = {
             elseif context.card.ability.set == "Joker" and context.card.edition then
                 if context.card.edition.key == 'e_jojo_misfortune' then
                     if pseudorandom('lovetrain') > G.GAME.probabilities.normal / card.ability.extra.odds then
-                        print("ran")
                         respawnCard()
                     end
                 end
