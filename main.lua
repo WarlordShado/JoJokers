@@ -1,7 +1,7 @@
 --- STEAMODDED HEADER
 --- MOD_NAME: JoJokers
 --- MOD_ID: JoJokers
---- MOD_AUTHOR: [Warlord Shado, Modlich, Maratby]
+--- MOD_AUTHOR: [Warlord Shado, Maratby, Lanuzo]
 --- MOD_DESCRIPTION: JoJo Meets Balatro!
 --- DEPENDENCIES: [Talisman>=2.0.0-beta8,Steamodded>=1.0.0~ALPHA-0812d]
 --- BADGE_COLOR: eb4eac
@@ -124,6 +124,7 @@ end
 local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
 for _,file in ipairs(standFiles) do
     if file == "part7.lua" then
+        print(jojo_config.manga_joker)
         if jojo_config.manga_joker then
             load_Joker(file)
         end

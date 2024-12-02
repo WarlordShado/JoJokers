@@ -104,8 +104,8 @@ local dirty_deeds = {
     loc_txt = {
         name = "Dirty Deeds Done Dirt Cheap",
         text = {
-            "Upon {C:attention}Selling, Destroying, or Using{} a Card or Joker,",
-            "Respawn the Joker. Max of {C:attention}#1#{} times each ante",
+            "Upon {C:attention}Selling or Using{} a Card or Joker,",
+            "Respawn the Joker. Max of {C:attention}#1#{} times each round",
             "{C:inactive}(Respawns Left:#2# ){}"
         }
     },
