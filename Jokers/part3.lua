@@ -197,6 +197,77 @@ local magician_red = {
     end
 }
 
+local hermit_purple = {
+    key ="hermit_purple",
+    name = "Hermit Purple",
+    loc_txt = {
+        name = "Hermit Purple",
+        text = {
+            "At the end of a {C:attention}shop{}",
+            "{C:mult}Pin{} the joker to the {C:attention}right{}",
+            "an retrigger it {C:attention}once{}"
+        }
+    },
+    config = {extra = {
+        retrigs = 1,
+        pinnedJokerName = ""
+    }},
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.retrigs,
+            card.ability.extra.pinnedJokerName
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Obatin evidence on Dio's Location",
+            {"Upon selling a Photograph"," Create a Negative Stand"," of a random main villian"}
+        )}
+    end,
+    rarity = 2,
+    atlas = "JoJokers",
+    pos = {x=2,y=0},
+    cost = 4,
+    calculate = function (self,card,context)   
+        if context.retrigger_joker_check and not context.retrigger_joker and context.other_card.ability.name == card.ability.extra.pinnedJokerName then
+			return {
+				message = localize("k_again_ex"),
+				repetitions = card.ability.extra.retrigs,
+				card = card,
+			}
+		end
+        if self.secAbility and context.selling_card then
+            local possibleKeys = {"j_jojo_world"}
+            if jojo_config.manga_joker then
+                table.insert(possibleKeys,"j_jojo_d4c")
+            end
+            if context.card.ability.name == "Photograph" then
+                local tempCard = {set = "Joker",area = G.jokers,key = possibleKeys[math.random(1,#possibleKeys)],edition = {negative = true}}
+                local newCard = SMODS.create_card(tempCard)
+                newCard:add_to_deck()
+                G.jokers:emplace(newCard)
+            end
+        end
+        if context.ending_shop and not context.blueprint then
+            for i, joker in ipairs(G.jokers.cards) do
+                if joker.ability.name == "Hermit Purple" and i > 1 then
+                    G.jokers.cards[i-1].pinned = true
+                    card.ability.extra.pinnedJokerName = G.jokers.cards[i-1].ability.name --Needed for Secert Ability
+                    if card.ability.extra.pinnedJokerName == "Photograph" then
+                        card_eval_status_text(self, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(self)})
+                    end
+                    card_eval_status_text(G.jokers.cards[i-1], 'extra', nil, nil, nil, {message = "Pinned!", colour = G.C.CHIPS})
+                end
+            end
+        end
+        if not context.repetition and not context.individual and context.end_of_round then
+            G.jokers.cards[1].pinned = false
+            card_eval_status_text(G.jokers.cards[1], 'extra', nil, nil, nil, {message = "Release!", colour = G.C.CHIPS})
+        end
+    end
+}
+
 local sliver_chariot = {
     key ="silver_chariot",
     name = "Silver Chariot",
@@ -354,7 +425,6 @@ local the_world = {
             if card.ability.extra.reducTriggered == false then
                 card.ability.extra.reducTriggered = true
                 local ante_mod = 0
-                print(card.ability.extra.abilityStopper)
                 if card.ability.extra.abilityStopper == false then
                     if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scoreRec then
                         card.ability.extra.abilityStopper = true
@@ -458,13 +528,11 @@ local cream = {
                     }
                 end
             end
-            
         end
-
     end
 }
 
 return {
     name = "Part 3 Stands",
-    list = {star_platinum,magician_red,sliver_chariot,cream,the_world}
+    list = {star_platinum,magician_red,hermit_purple,sliver_chariot,cream,the_world}
 }

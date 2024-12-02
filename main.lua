@@ -1,7 +1,7 @@
 --- STEAMODDED HEADER
 --- MOD_NAME: JoJokers
 --- MOD_ID: JoJokers
---- MOD_AUTHOR: [Warlord Shado, Modlich, Maratby]
+--- MOD_AUTHOR: [Warlord Shado, Maratby, Lanuzo]
 --- MOD_DESCRIPTION: JoJo Meets Balatro!
 --- DEPENDENCIES: [Talisman>=2.0.0-beta8,Steamodded>=1.0.0~ALPHA-0812d]
 --- BADGE_COLOR: eb4eac
@@ -10,7 +10,7 @@
 ------------MOD CODE -------------------------
 
 mod_dir = ''..SMODS.current_mod.path
-jojoker_config = SMODS.current_mod.config
+jojo_config = SMODS.current_mod.config
 
 JOJO = {}
 
@@ -30,6 +30,32 @@ JOJO.REMOVE_JOKER = function(self,card)
         end
     }))
     return true
+end
+
+JOJO.EVOLVE = function(self,card,force_key)
+    local prevEdition = nil
+    local prevPerish = nil
+    local prevEternal = nil
+    local prevRent = nil
+
+    if card.edition then prevEdition = card.edition end
+    if card.ability.perishable then prevPerish = card.ability.perishable end
+    if card.ability.rental then prevRent = card.ability.rental end
+    if card.ability.eternal then prevEternal = card.ability.eternal end
+
+    G.E_MANAGER:add_event(Event({JOJO.REMOVE_JOKER(self,card)}))
+
+    local tempCard = {set = "Joker",area = G.jokers,key = force_key,no_edition = true}
+    local newCard = SMODS.create_card(tempCard)
+
+    if prevEdition then newCard.edition = prevEdition end
+    if prevPerish then newCard.ability.perishable = prevPerish end
+    if prevEternal then newCard.ability.eternal = prevEternal end
+    if prevRent then newCard.ability.rental = prevRent end
+
+    newCard:add_to_deck()
+    G.jokers:emplace(newCard)
+    return "Evolved!"
 end
 
 JOJO.GENERATE_HINT = function(self,hintText,secAbilityText)
@@ -63,18 +89,7 @@ end
 JOJO.ACTIVATE_SECRET_ABILITY = function(self)
     self.secAbility = true
 
-    return "Secert Ability Active"
-end
-
-JOJO.DISCARD_HAND = function() --Below will be used eventually 
-    local anySelect = false
-
-    for i, selectedCard in ipairs(G.hand.cards) do
-        G.hand:add_to_highlighted(selectedCard, true)
-        table.remove(G.hand.card, i)
-        anySelect = true
-    end
-    if anySelect then G.FUNCS.discard_cards_from_highlighted(nil, true) end
+    return "Secret Ability Active"
 end
 
 --Load Sprites
@@ -108,9 +123,9 @@ end
 
 local standFiles = NFS.getDirectoryItems(mod_dir.."Jokers")
 for _,file in ipairs(standFiles) do
-    print(file)
     if file == "part7.lua" then
-        if jojoker_config["manga_jokers"] then
+        print(jojo_config.manga_joker)
+        if jojo_config.manga_joker then
             load_Joker(file)
         end
     else
@@ -133,6 +148,54 @@ for _,file in ipairs(pokerFile) do
                 print(file)
                 SMODS.PokerHand(item)
             end
+        end
+    end
+end
+
+--Load Joker Files
+load_Consume = function (file)
+    sendDebugMessage("The File is:"..file)
+    local consume, load_error = SMODS.load_file("Consumables/"..file)
+    if load_error then
+        sendDebugMessage ("The error is: "..load_error)
+    else
+        local curr_consume = consume()
+        if curr_consume.init then  curr_consume:init() end
+
+        if curr_consume.list and #curr_consume.list > 0 then
+            for i, item in ipairs(curr_consume.list) do
+                item.discovered = true
+                item.unlocked = true
+                SMODS.Consumable(item)
+            end
+        end
+    end
+end
+
+local consumeFiles = NFS.getDirectoryItems(mod_dir.."Consumables")
+for _,file in ipairs(consumeFiles) do
+    if file == "corpse.lua" then
+        if jojo_config.manga_joker then
+            load_Consume(file)
+        end
+    else
+        load_Consume(file)
+    end
+end
+
+local editions = NFS.getDirectoryItems(mod_dir.."Editions")
+
+for _, file in ipairs(editions) do
+    sendDebugMessage ("The file is: "..file)
+    local edition, load_error = SMODS.load_file("Editions/"..file)
+    if load_error then
+        sendDebugMessage ("The error is: "..load_error)
+    else
+        local curr_edition = edition()
+        if curr_edition.init then curr_edition:init() end
+      
+        for i, item in ipairs(curr_edition.list) do
+            SMODS.Edition(item)
         end
     end
 end
