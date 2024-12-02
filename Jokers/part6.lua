@@ -10,12 +10,7 @@ local googoodolls = {
             "{C:inactive}(Example: 10 = 2){}"
         }
     },
-    config = {extra = {
-        overflow = 0,
-        secAbility = false,
-        abilityStopper=false,
-        firstTimeStopper = true}
-    },
+    config = {},
     loc_vars = function(self,info_queue,card)
         return {
         main_end = JOJO.GENERATE_HINT(
