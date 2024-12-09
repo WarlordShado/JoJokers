@@ -14,6 +14,7 @@ local beetle_arrow = {
     cost = 10,
     unlocked = true,
     discovered = true,
+    yes_pool_flag = "hasGoldChar",
     can_use = function(self,card)
         if #G.jokers.highlighted == 1 then
             local choice = G.jokers.highlighted[1]

@@ -189,7 +189,7 @@ local magician_red = {
 
             if red_suits == all_cards then
                 return {
-                    message = localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+                    message = "Magician's Red!",
                     Xmult_mod = card.ability.extra.Xmult
                 }
             end
@@ -358,7 +358,7 @@ local sliver_chariot = {
             return true end }))
 
             return {
-                message = "Charge!",
+                message = "Silver Chariot!",
                 card = card
             }
         end
@@ -460,7 +460,6 @@ local cream = {
         name = "Cream",
         text = {
             "{C:mult}Destroy{} the first card on every hand",
-            
         }
     },
     config = {extra = {
@@ -478,7 +477,7 @@ local cream = {
                 self,
                 "Destroy a Blue Card...",
                 {"Every 4 cards destoryed,",
-                "spawn a negative black hole"}
+                "create a negative black hole"}
             )}
     end,
     rarity = 3,

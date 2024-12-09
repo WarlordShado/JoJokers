@@ -9,7 +9,7 @@ local misfortune = ({
         label = "Love Train",
         text = {
             "When this card is {C:attention}Sold or Destroyed{},",
-            "Respawn this Card. {C:green}1/5{} chance to not respawn.",
+            "Respawn this Card. {C:green}1 in 5{} chance to not respawn.",
             "{C:inactive}(Use D4C's respawns first){}",
             "{X:mult,C:white}X2{} Mult"
         }

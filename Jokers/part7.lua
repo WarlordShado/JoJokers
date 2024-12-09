@@ -6,7 +6,7 @@ local tusk = {
     loc_txt = {
         name = "Tusk",
         text = {
-            "{C:attention}#2# to #3#{} chance to {C:attention}Retrigger{} a card",
+            "{C:green}#2# in #3#{} chance to {C:attention}Retrigger{} a card",
             "{C:inactive}Max of #1# Times{}",
         }
     },
@@ -29,7 +29,7 @@ local tusk = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "The 13th Fibonacci...",
-            {"Flat 1/" .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
+            {"Flat 1 in " .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
         )}
     end,
     rarity = 3,
@@ -133,6 +133,9 @@ local dirty_deeds = {
     blueprint_compat = false,
     add_to_deck = function(self)
 		G.GAME.pool_flags.hasD4C = true
+	end,
+    remove_from_deck = function(self)
+		G.GAME.pool_flags.hasD4C = false
 	end,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint then
