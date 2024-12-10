@@ -6,8 +6,7 @@ local crazy_diamond = {
     loc_txt = {
         name = "Crazy Diamond",
         text = {
-            "When a Card is ",
-            "{C:mult}Destroyed{} while in play,",
+            "When a Card is destroyed while in play,",
             "{C:green}#2# in #1#{} chance to",
             "add a {C:attention}enchanced{} card",
             "of the same rank to your deck.",
@@ -30,7 +29,7 @@ local crazy_diamond = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "Restore 2 lives at once...",
-            {G.GAME.probabilities.normal" in 8 chance to add a ","random seal to a card when restored"}
+            {G.GAME.probabilities.normal.." in 8 chance to add a ","random seal to a card when restored"}
         )}
     end,
     rarity = 3,
@@ -56,7 +55,7 @@ local crazy_diamond = {
                             local enhanements = {G.P_CENTERS.m_bonus,G.P_CENTERS.m_gold,G.P_CENTERS.m_lucky,G.P_CENTERS.m_wild,G.P_CENTERS.m_mult,G.P_CENTERS.m_glass,G.P_CENTERS.m_steel,G.P_CENTERS.m_stone}
                             local enhance = math.random(1,#enhanements)
                             copy:set_ability(enhanements[enhance], nil, true)
-                            if pseudorandom("crazydiamond") < G.GAME.probabilities.noraml / card.ability.extra.restoreOdds then
+                            if pseudorandom("crazydiamond") < G.GAME.probabilities.normal / card.ability.extra.restoreOdds then
                                 local seals = {"Red","Purple","Gold","Blue"}
                                 copy:set_seal(seals[math.random(1,4)],true)
                             end
@@ -89,9 +88,9 @@ local harvest = {
     loc_txt = {
         name = "Harvest",
         text = {
-            "Gains {C:attention}$#2#{}",
+            "Gains {C:money}$#2#{}",
             "if first hand has 1 scoring {C:attention}Gold Card{}",
-            "{C:inactive}(Currently {C:attention}$#1#{} ){}"
+            "{C:inactive}(Currently {C:money}$#1#{} ){}"
         }
     },
     config = {extra = {
@@ -169,7 +168,7 @@ local killer_queen = {
             "Every {C:attention}Joker{} has a",
             "{C:green}#6# in #5#{} chance to {C:attention}Upgrade{}",
             "This joker by {C:chips}#2# Chips{} and {C:mult}#4# Mult{}",
-            "If upgrade succeeds,{C:green}#6# in #7#{} chance to destroy said joker",
+            "If upgrade succeeds, {C:green}#6# in #7#{} chance to destroy said joker",
             "{C:inactive}(Currently: {C:chips}#1# Chips{} and {C:mult}#3# Mult{}){}"
         }
     },

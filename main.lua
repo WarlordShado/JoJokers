@@ -80,7 +80,7 @@ JOJO.GENERATE_HINT = function(self,hintText,secAbilityText)
     else
         content[1] = {n=G.UIT.R,config={align = "cm"},nodes={}}
         content[1].nodes={
-            {n=G.UIT.T, config={text = "("..textToUse..")", colour = color, scale = 0.32}},
+            {n=G.UIT.T, config={text = textToUse, colour = color, scale = 0.32}},
         }
     end
     return {{n=G.UIT.C, config={align = "cm", minh = 0.4}, nodes=content}}

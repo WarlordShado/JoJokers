@@ -6,7 +6,7 @@ local tusk = {
     loc_txt = {
         name = "Tusk",
         text = {
-            "{C:green}#2# in #3#{} chance to {C:attention}Retrigger{} a card",
+            "{C:green}#2# in #3#{} chance to retrigger a card",
             "{C:inactive}Max of #1# Times{}",
         }
     },
@@ -187,7 +187,7 @@ local dirty_deeds_love_train = {
     loc_txt = {
         name = "D4C: Love Train",
         text = {
-            "Upon {C:attention}Selling, Destroying, or Using{} a Card or Joker,",
+            "Upon {C:attention}Selling or Using{} a Card or Joker,",
             "Respawn the Joker. Max of {C:attention}#1#{} times each ante",
             "{C:inactive}(Respawns Left:#2# ){}"
         }
@@ -312,7 +312,6 @@ local dirty_deeds_love_train = {
                         respawnCard()
                     end
                 end
-                
             end
         end
     end

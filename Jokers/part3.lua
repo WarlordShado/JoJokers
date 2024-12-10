@@ -130,9 +130,9 @@ local magician_red = {
     loc_txt = {
         name = "Magician's Red",
         text = {
-            "If held in hand cards",
-            "are only {C:mult}Hearts{} and",
-            "{C:attention}Diamonds, {X:mult,C:white}X#1#{} mult",
+            "If played cards",
+            "are only {C:hearts}Hearts{} and",
+            "{C:diamonds}Diamonds, {X:mult,C:white}X#1#{} mult",
         }
     },
     config = {extra = {
@@ -180,7 +180,7 @@ local magician_red = {
             local red_suits = 0
             local all_cards = 0
 
-            for k, _card in ipairs(G.hand.cards) do
+            for k, _card in ipairs(G.play.cards) do
                 all_cards = all_cards + 1
                 if _card:is_suit('Hearts', nil, true) or _card:is_suit('Diamonds', nil, true) then
                     red_suits = red_suits + 1
@@ -204,8 +204,8 @@ local hermit_purple = {
         name = "Hermit Purple",
         text = {
             "At the end of a {C:attention}shop{}",
-            "{C:mult}Pin{} the joker to the {C:attention}right{}",
-            "an retrigger it {C:attention}once{}"
+            "{C:attention}Pin{} the joker to the {C:attention}right{}",
+            "and retrigger it"
         }
     },
     config = {extra = {
@@ -275,8 +275,7 @@ local sliver_chariot = {
         name = "Silver Chariot",
         text = {
             "Gains {C:chips}+#3#{} Chips & {C:mult}+#4#{} Mult",
-            "if played hand",
-            "contains a {C:attention}Straight Flush{}",
+            "if played hand contains a {C:attention}Straight Flush{}",
             "{C:inactive}(Currently {C:chips}+#2#{} Chips, {C:mult}+#1#{} Mult){}",
         }
     },
@@ -459,7 +458,7 @@ local cream = {
     loc_txt = {
         name = "Cream",
         text = {
-            "{C:mult}Destroy{} the first card on every hand",
+            "Destroy the {C:attention}first{} card on every {C:chips}hand{}",
         }
     },
     config = {extra = {

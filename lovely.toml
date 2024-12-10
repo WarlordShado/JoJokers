@@ -23,3 +23,18 @@ payload = """
     end
 """
 match_indent = true
+
+#Add discount for Limp Bizkit
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('Astronomer') > 0 then self.cost = 0 end"
+position = "before"
+payload = """
+    if (self.ability.set == 'Joker' or (self.ability.set == 'Booster' and self.ability.name:find('Buffoon'))) and SMODS.find_card("j_jojo_limp_bizkit") then
+        if G.GAME.limpActive then
+            self.cost = self.cost * 0.5
+        end
+    end
+"""
+match_indent = true

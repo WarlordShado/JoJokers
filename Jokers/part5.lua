@@ -7,9 +7,9 @@ local gold_exp = {
         name = "Gold Experience",
         text = {
             "Gain {X:mult,C:white}X0.1{} based on",
-            "the {C:attention}Interest Cap{}",
+            "the {C:money}Interest Cap{}",
             "Add {C:attention}#1#{} to the interest cap upon",
-            "a {C:mult}Boss Blind's{} defeat"
+            "a {C:attention}Boss Blind's{} defeat"
         }
     },
     config = {extra = {
@@ -82,9 +82,9 @@ local gold_exp_req = {
         name = "Gold Experience Requiem",
         text = {
             "Gain {X:mult,C:white}X0.2{} based on",
-            "the {C:attention}Interest Cap{}",
+            "the {C:money}Interest Cap{}",
             "Add {C:attention}#1#{} to the interest cap upon",
-            "a {C:mult}Boss Blind's{} defeat"
+            "a {C:attention}Boss Blind's{} defeat"
         }
     },
     config = {extra = {
