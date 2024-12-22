@@ -12,92 +12,26 @@
 mod_dir = ''..SMODS.current_mod.path
 jojo_config = SMODS.current_mod.config
 
-JOJO = {}
-
-JOJO.REMOVE_JOKER = function(self,card)
-    play_sound('tarot1')
-    card.T.r = -0.2
-    card:juice_up(0.3, 0.4)
-    card.states.drag.is = true
-    card.children.center.pinch.x = true
-    G.E_MANAGER:add_event(Event({
-        trigger = 'after', delay = 0.3, blockable = false,
-        func = function()
-            G.jokers:remove_card(self)
-            card:remove()
-            card = nil
-            return true
-        end
-    }))
-    return true
-end
-
-JOJO.EVOLVE = function(self,card,force_key)
-    local prevEdition = nil
-    local prevPerish = nil
-    local prevEternal = nil
-    local prevRent = nil
-
-    if card.edition then prevEdition = card.edition end
-    if card.ability.perishable then prevPerish = card.ability.perishable end
-    if card.ability.rental then prevRent = card.ability.rental end
-    if card.ability.eternal then prevEternal = card.ability.eternal end
-
-    G.E_MANAGER:add_event(Event({JOJO.REMOVE_JOKER(self,card)}))
-
-    local tempCard = {set = "Joker",area = G.jokers,key = force_key,no_edition = true}
-    local newCard = SMODS.create_card(tempCard)
-
-    if prevEdition then newCard.edition = prevEdition end
-    if prevPerish then newCard.ability.perishable = prevPerish end
-    if prevEternal then newCard.ability.eternal = prevEternal end
-    if prevRent then newCard.ability.rental = prevRent end
-
-    newCard:add_to_deck()
-    G.jokers:emplace(newCard)
-    return "Evolved!"
-end
-
-JOJO.GENERATE_HINT = function(self,hintText,secAbilityText)
-    local content = {}
-    local textToUse
-    local color
-    
-    if self.secAbility == true  then
-        textToUse = secAbilityText
-        color = G.C.SECONDARY_SET.Planet
-    else
-        textToUse = hintText
-        color = G.C.UI.TEXT_INACTIVE
-    end
-
-    if type(textToUse) == "table" then
-        for i=1,#textToUse do
-            content[#content + 1] = {n=G.UIT.R,config={align = "cm"},nodes={
-                {n=G.UIT.T, config={text = textToUse[i], colour = color, scale = 0.32}},
-            }}
-        end
-    else
-        content[1] = {n=G.UIT.R,config={align = "cm"},nodes={}}
-        content[1].nodes={
-            {n=G.UIT.T, config={text = textToUse, colour = color, scale = 0.32}},
-        }
-    end
-    return {{n=G.UIT.C, config={align = "cm", minh = 0.4}, nodes=content}}
-end
-
-JOJO.ACTIVATE_SECRET_ABILITY = function(self)
-    self.secAbility = true
-
-    return "Secret Ability Active"
-end
-
 --Load Sprites
 local sprite, load_error = SMODS.load_file("sprites.lua")
 if load_error then
     sendDebugMessage("The error is:"..load_error)
 else
     sprite()
+end
+
+local basefuncs, load_error = SMODS.load_file("Globals/JoJoFuncs.lua")
+if load_error then
+  sendDebugMessage ("The error is: "..load_error)
+else
+  basefuncs()
+end
+
+local osirisfuncs, load_error = SMODS.load_file("Globals/BossSoulFunc.lua")
+if load_error then
+  sendDebugMessage ("The error is: "..load_error)
+else
+    osirisfuncs()
 end
 
 --Load Joker Files
@@ -115,6 +49,12 @@ load_Joker = function (file)
                 item.discovered = true
                 item.unlocked = true
                 item.secAbility = false
+                if not item.remove_from_deck then
+                    item.remove_from_deck = function(self) --Resest the Secert Ability when a game is over
+                        self.secAbility = false
+                    end
+                end
+                
                 SMODS.Joker(item)
             end
         end
@@ -199,10 +139,6 @@ for _, file in ipairs(editions) do
         end
     end
 end
-
-
-
-
 
 ----------------------------------------------
 ------------MOD CODE END----------------------

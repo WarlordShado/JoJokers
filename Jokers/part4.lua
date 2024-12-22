@@ -52,12 +52,9 @@ local crazy_diamond = {
                     func = function()
                         for i, cardCheck in ipairs(card.ability.extra.cardToRestore) do
                             local copy = copy_card(cardCheck, nil, nil, G.playing_card)
-                            local enhanements = {G.P_CENTERS.m_bonus,G.P_CENTERS.m_gold,G.P_CENTERS.m_lucky,G.P_CENTERS.m_wild,G.P_CENTERS.m_mult,G.P_CENTERS.m_glass,G.P_CENTERS.m_steel,G.P_CENTERS.m_stone}
-                            local enhance = math.random(1,#enhanements)
-                            copy:set_ability(enhanements[enhance], nil, true)
+                            JOJO.APPLY_ENCHANCE(copy)
                             if pseudorandom("crazydiamond") < G.GAME.probabilities.normal / card.ability.extra.restoreOdds then
-                                local seals = {"Red","Purple","Gold","Blue"}
-                                copy:set_seal(seals[math.random(1,4)],true)
+                                JOJO.APPLY_SEAL(copy)
                             end
                             copy:add_to_deck()
                             G.deck.config.card_limit = G.deck.config.card_limit + 1

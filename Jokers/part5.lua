@@ -40,6 +40,7 @@ local gold_exp = {
         G.GAME.pool_flags.hasGoldChar = true 
     end,
     remove_from_deck = function(self)
+        self.secAbility = false
         G.GAME.pool_flags.hasGoldChar = false 
     end,
     calculate = function (self,card,context)
@@ -127,7 +128,7 @@ local gold_exp_req = {
             card.ability.extra.abilityStopper = true
         end
 
-        if context.ending_shop and card.ability.extra.abilityStopper then --In place so ability only triggers once (it triggered several times without the bool)
+        if context.ending_shop and card.ability.extra.abilityStopper and not context.blueprint then --In place so ability only triggers once (it triggered several times without the bool)
             card.ability.extra.abilityStopper = false
         end
 
@@ -184,7 +185,7 @@ local kraftwork = {
         )}
     end,
     rarity = 3,
-    
+    blueprint_compat = false,
     atlas = "JoJokers",
     pos = {x=4,y=10},
     cost = 6,

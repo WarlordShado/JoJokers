@@ -52,17 +52,7 @@ local tusk = {
         local addEdition = function(cardCheck) 
             local editionChance = math.random(1,card.ability.extra.editionOdds)
             if editionChance == 1 then
-                local edition
-                local getEdition = math.random(1,3)
-                if getEdition <= 1 then
-                    edition = {polychrome = true}
-                elseif getEdition <= 2 then
-                    edition = {foil = true}
-                else
-                    edition = {holo = true}
-                end
-
-                cardCheck:set_edition(edition,true)
+                JOJO.APPLY_EDITION(cardCheck)
                 return true
             end
             return false
@@ -72,7 +62,7 @@ local tusk = {
             local isDone = false
             local repeats = 0
 
-            if self.secAbility == true and not context.other_card.edition and addEdition(context.other_card) then
+            if self.secAbility == true and not context.other_card.edition and addEdition(context.other_card) and not context.blueprint then
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Infinte Rotation!"})
             end
             
@@ -135,6 +125,7 @@ local dirty_deeds = {
 		G.GAME.pool_flags.hasD4C = true
 	end,
     remove_from_deck = function(self)
+        self.secAbility = false
 		G.GAME.pool_flags.hasD4C = false
 	end,
     calculate = function (self,card,context)

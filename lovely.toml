@@ -36,5 +36,34 @@ payload = """
             self.cost = self.cost * 0.5
         end
     end
+
+    if not (self.ability.set == 'Joker' or (self.ability.set == 'Booster' and self.ability.name:find('Buffoon'))) then
+        if G.GAME.souls_zodiac_discount then
+            self.cost = self.cost * 0.5
+        end
+    end
+"""
+match_indent = true
+
+#Used to apply smeared effect and zodiac discount effect
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "castle_card = {suit = 'Spades'},"
+position = "after"
+payload = """
+    souls_checkered_smear = false,
+    souls_zodiac_discount = false,
+"""
+match_indent = true
+
+#Allow smeared effect to activate
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "if next(find_joker('Smeared Joker')) and (self.base.suit == 'Hearts' or self.base.suit == 'Diamonds') == (suit == 'Hearts' or suit == 'Diamonds') then"
+position = "at"
+payload = """
+    if (next(find_joker('Smeared Joker')) or G.GAME.souls_checkered_smear == true) and (self.base.suit == 'Hearts' or self.base.suit == 'Diamonds') == (suit == 'Hearts' or suit == 'Diamonds') then
 """
 match_indent = true

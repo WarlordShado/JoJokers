@@ -27,7 +27,8 @@ local googoodolls = {
     rarity = 2,
     atlas = "JoJokers",
     pos = {x=1,y=14},
-    cost = 6
+    cost = 6,
+    blueprint_compat = false
 }
 
 local limp_bizkit = {
@@ -61,10 +62,12 @@ local limp_bizkit = {
     atlas = "JoJokers",
     pos = {x=5,y=14},
     cost = 6,
+    blueprint_compat = false,
     remove_from_deck= function(self)
         if self.secAbility then
             G.GAME.limpActive = false
         end
+        self.secAbility = false
     end,
     calculate = function (self,card,context)
         if context.selling_card and not context.blueprint then
