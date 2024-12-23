@@ -1,4 +1,4 @@
-The Fool (Uncommon) - Stone cards act as Gold and Steel cards. Secret Abiltiy - Stone cards act like they have a blue seal
+The Fool (Uncommon) - Stone cards act as Gold and Steel cards when held in hand. Secret Abiltiy - Stone cards act like they have a blue seal when held in hand
 
 The Lovers (common) - When a card is destroyed during a blind, score X10 the card's value. Secert Abiltiy - 1 in 3 chance upon destroying a card to disable the boss blind effect. This card scores X20 its value 
 
