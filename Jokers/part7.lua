@@ -88,6 +88,63 @@ local tusk = {
     end
 }
 
+local hey_ya = {
+    key ="hey_ya",
+    name = "Hey Ya",
+    loc_txt = {
+        name = "Hey Ya!",
+        text = {
+            "Doubles all {C:attention}listed{}",
+            "{C:green}probabilities{}",
+            "{C:inactive}(ex:{C:green}1 in 3{} -> {C:green}2 in 3{}){}",
+        }
+    },
+    config = {extra = {
+        oddsMult = 2,
+        luckyTrigged = 0,
+        luckyNeeded = 20
+    }
+    },
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.oddsMult
+        }
+        
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Become the luckiest man alive ("..card.ability.extra.luckyTrigged.."/"..card.ability.extra.luckyNeeded..")",
+            {"If a Lucky Card triggers","gain both rewards","If both rewards hit","increase them by 50%"}
+        )}
+    end,
+    rarity = 3,
+    atlas = "JoJokers7",
+    pos = {x=5,y=0},
+    cost = 7,
+    blueprint_compat = false,
+    add_to_deck = function(self, card)
+        G.GAME.probabilities.normal = G.GAME.probabilities.normal * card.ability.extra.oddsMult * math.max(1, (2 ^ #find_joker('Oops! All 6s')))
+      end,
+      remove_from_deck = function(self, card)
+        if self.secAbility then
+            G.GAME.lucky_trigger_both = false
+        end
+        self.secAbility = false
+        G.GAME.probabilities.normal = G.GAME.probabilities.normal / card.ability.extra.oddsMult * math.max(1, (2 ^ #find_joker('Oops! All 6s')))
+      end,
+    calculate = function (self,card,context)
+        if context.individual and context.other_card.lucky_trigger and not context.blueprint and not self.secAbility then
+            card.ability.extra.luckyTrigged = card.ability.extra.luckyTrigged + 1
+            if card.ability.extra.luckyTrigged >= card.ability.extra.luckyNeeded then
+                G.GAME.lucky_trigger_both = true
+                return {
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                }
+            end
+        end
+    end
+}
+
 local dirty_deeds = {
     key ="d4c",
     name = "D4C",
@@ -310,5 +367,5 @@ local dirty_deeds_love_train = {
 
 return {
     name="Part 7 Stands",
-    list={tusk,dirty_deeds,dirty_deeds_love_train}
+    list={tusk,hey_ya,dirty_deeds,dirty_deeds_love_train}
 }
