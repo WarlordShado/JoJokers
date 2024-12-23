@@ -4,11 +4,11 @@
 
 This mod Requires Steamodded
 
-Mod adds 9 stands: Star Platinum, Magician's Red, Hermit Purple, Silver Chariot, Cream, The World, Crazy Diamond, Harvest, Gold Experience and Reqium, Karftwork, and GooGoo Dolls.
+This mod adds 15 Stands ranging from part 3 to part 7
 
 All have Secret Abilities that activate when a certain action is completed. Hint in description. Some are not complete yet
 
-Manga Jokers can be enabled in the config. Current Manga jokers are Tusk, D4C ,and D4C Love Train
+Manga Jokers can be enabled in the config.
 
 More jokers and other stuff will be added eventually 
 
