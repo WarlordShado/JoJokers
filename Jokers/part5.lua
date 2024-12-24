@@ -165,17 +165,15 @@ local kraftwork = {
     },
     config = {extra = {
         overflow = 0,
-        secAbility = false,
         abilityStopper=false,
         firstTimeStopper = true}
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.overflow,
-            card.ability.extra.secAbility,
-            card.ability.extra.secAbilityText,
             card.ability.extra.firstTimeStopper,
-            card.ability.extra.abilityStopper}
+            card.ability.extra.abilityStopper
+        }
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
