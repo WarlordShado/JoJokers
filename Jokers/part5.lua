@@ -7,9 +7,9 @@ local gold_exp = {
         name = "Gold Experience",
         text = {
             "Gain {X:mult,C:white}X0.1{} based on",
-            "the {C:attention}Interest Cap{}",
+            "the {C:money}Interest Cap{}",
             "Add {C:attention}#1#{} to the interest cap upon",
-            "a {C:mult}Boss Blind's{} defeat"
+            "a {C:attention}Boss Blind's{} defeat"
         }
     },
     config = {extra = {
@@ -36,7 +36,13 @@ local gold_exp = {
     atlas = "JoJokers",
     pos = {x=0,y=9},
     cost = 6,
-    
+    add_to_deck = function(self)
+        G.GAME.pool_flags.hasGoldChar = true 
+    end,
+    remove_from_deck = function(self)
+        self.secAbility = false
+        G.GAME.pool_flags.hasGoldChar = false 
+    end,
     calculate = function (self,card,context)
         if context.consumeable then
             if context.consumeable.ability.name == "beetle_arrow" and card.ability.extra.req == true then
@@ -62,7 +68,7 @@ local gold_exp = {
         if context.joker_main then
             local xMult = (1+((G.GAME.interest_cap/(card.ability.extra.interInc * 5)) * 0.1))
             return{
-                message = localize{type = 'variable', key = 'a_xmult', vars = {xMult}}, 
+                message = "Gold Experience!", 
                 colour = G.C.CHIPS,
                 Xmult_mod = xMult
               }
@@ -77,9 +83,9 @@ local gold_exp_req = {
         name = "Gold Experience Requiem",
         text = {
             "Gain {X:mult,C:white}X0.2{} based on",
-            "the {C:attention}Interest Cap{}",
+            "the {C:money}Interest Cap{}",
             "Add {C:attention}#1#{} to the interest cap upon",
-            "a {C:mult}Boss Blind's{} defeat"
+            "a {C:attention}Boss Blind's{} defeat"
         }
     },
     config = {extra = {
@@ -108,6 +114,7 @@ local gold_exp_req = {
     no_pool_flag = false,
     add_to_deck = function(self)
         self.secAbility = true
+        G.GAME.pool_flags.hasGoldChar = false 
     end,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not card.ability.extra.abilityStopper then
@@ -116,19 +123,19 @@ local gold_exp_req = {
                 delay = 0.2,
                 func = function()
                     G.GAME.interest_cap = G.GAME.interest_cap + (card.ability.extra.interInc * 5)
-                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Upgrade!"})
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Upgrade!"})
             return true end}))
             card.ability.extra.abilityStopper = true
         end
 
-        if context.ending_shop and card.ability.extra.abilityStopper then --In place so ability only triggers once (it triggered several times without the bool)
+        if context.ending_shop and card.ability.extra.abilityStopper and not context.blueprint then --In place so ability only triggers once (it triggered several times without the bool)
             card.ability.extra.abilityStopper = false
         end
 
         if context.joker_main then
             local xMult = (1+((G.GAME.interest_cap/(card.ability.extra.interInc * 5)) * 0.2))
             return{
-                message = localize{type = 'variable', key = 'a_xmult', vars = {xMult}}, 
+                message = "Gold Experience Requiem", 
                 colour = G.C.CHIPS,
                 Xmult_mod = xMult
               }
@@ -176,7 +183,7 @@ local kraftwork = {
         )}
     end,
     rarity = 3,
-    
+    blueprint_compat = false,
     atlas = "JoJokers",
     pos = {x=4,y=10},
     cost = 6,
@@ -207,7 +214,7 @@ local kraftwork = {
                             card.ability.extra.overflow = to_big(G.GAME.blind.chips) * to_big(0.75)
                         end
                         ease_chips(to_big(card.ability.extra.overflow))
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Bam!"})
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Kraftwork!"})
                     return true end}))
             end
         end

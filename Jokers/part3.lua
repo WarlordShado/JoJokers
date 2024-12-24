@@ -73,7 +73,7 @@ local star_platinum = {
                 }
             end
         end
-        if context.before and self.secAbility == true then
+        if context.before and self.secAbility == true and not context.blueprint then
             if G.GAME.current_round.hands_left == 0 and card.ability.extra.chips >= 100 then 
                 card.ability.extra.timeStopActive = true
                 local currentDiscards = G.GAME.current_round.discards_left
@@ -92,7 +92,7 @@ local star_platinum = {
             end
         end
 
-        if context.joker_main then
+        if context.joker_main and not context.blueprint then
             if self.secAbility == false then
                 if card.ability.extra.currentPower >= 50 then
                     return {
@@ -130,9 +130,9 @@ local magician_red = {
     loc_txt = {
         name = "Magician's Red",
         text = {
-            "If held in hand cards",
-            "are only {C:mult}Hearts{} and",
-            "{C:attention}Diamonds, {X:mult,C:white}X#1#{} mult",
+            "If played cards",
+            "are only {C:hearts}Hearts{} and",
+            "{C:diamonds}Diamonds, {X:mult,C:white}X#1#{} mult",
         }
     },
     config = {extra = {
@@ -166,7 +166,7 @@ local magician_red = {
             return {
                 message = JOJO.ACTIVATE_SECRET_ABILITY(self)
             }
-        elseif context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint then
+        elseif context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) then
             if pseudorandom("magicred") < G.GAME.probabilities.normal/card.ability.extra.odds then
                 return {
                     card = card,
@@ -180,7 +180,7 @@ local magician_red = {
             local red_suits = 0
             local all_cards = 0
 
-            for k, _card in ipairs(G.hand.cards) do
+            for k, _card in ipairs(G.play.cards) do
                 all_cards = all_cards + 1
                 if _card:is_suit('Hearts', nil, true) or _card:is_suit('Diamonds', nil, true) then
                     red_suits = red_suits + 1
@@ -189,7 +189,7 @@ local magician_red = {
 
             if red_suits == all_cards then
                 return {
-                    message = localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+                    message = "Magician's Red!",
                     Xmult_mod = card.ability.extra.Xmult
                 }
             end
@@ -204,8 +204,8 @@ local hermit_purple = {
         name = "Hermit Purple",
         text = {
             "At the end of a {C:attention}shop{}",
-            "{C:mult}Pin{} the joker to the {C:attention}right{}",
-            "an retrigger it {C:attention}once{}"
+            "{C:attention}Pin{} the joker to the {C:attention}right{}",
+            "and retrigger it"
         }
     },
     config = {extra = {
@@ -237,8 +237,8 @@ local hermit_purple = {
 				card = card,
 			}
 		end
-        if self.secAbility and context.selling_card then
-            local possibleKeys = {"j_jojo_world"}
+        if self.secAbility and context.selling_card and not context.blueprint then
+            local possibleKeys = {"j_jojo_world","j_jojo_killer_queen"}
             if jojo_config.manga_joker then
                 table.insert(possibleKeys,"j_jojo_d4c")
             end
@@ -261,7 +261,7 @@ local hermit_purple = {
                 end
             end
         end
-        if not context.repetition and not context.individual and context.end_of_round then
+        if not context.repetition and not context.individual and context.end_of_round and not context.blueprint then
             G.jokers.cards[1].pinned = false
             card_eval_status_text(G.jokers.cards[1], 'extra', nil, nil, nil, {message = "Release!", colour = G.C.CHIPS})
         end
@@ -275,8 +275,7 @@ local sliver_chariot = {
         name = "Silver Chariot",
         text = {
             "Gains {C:chips}+#3#{} Chips & {C:mult}+#4#{} Mult",
-            "if played hand",
-            "contains a {C:attention}Straight Flush{}",
+            "if played hand contains a {C:attention}Straight Flush{}",
             "{C:inactive}(Currently {C:chips}+#2#{} Chips, {C:mult}+#1#{} Mult){}",
         }
     },
@@ -358,9 +357,200 @@ local sliver_chariot = {
             return true end }))
 
             return {
-                message = "Charge!",
+                message = "Silver Chariot!",
                 card = card
             }
+        end
+    end
+}
+
+local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a copy of souls in loc_vars)
+    key ="osiris",
+    name = "Osiris",
+    loc_txt = {
+        name = "Osiris",
+        text = {
+            "Gain a {C:legendary}Boss Soul{} after defeating a boss",
+            "Gains a different {C:attention}ability{} depending on boss",
+            "{C:inactive}(If boss is modded, select a random soul){}"
+        }
+    },
+    config = {extra = {
+            boss = "",
+            deck = "",
+            souls = 0,
+            abilityStopper = false
+        }
+    },
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.boss,
+            card.ability.extra.deck,
+            card.ability.extra.souls,
+            card.ability.extra.abilityStopper
+        }
+        
+        G.GAME.trigedVerdentLeafBoss = false --used to make sure that Verdent Leaf soul ability only triggers once
+        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(self,card.ability.extra.boss,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(self,card.ability.extra.deck,info_queue)
+
+        return {
+            vars = vars,
+            main_end = SOULS.GENERATE_MAIN_END(self,card.ability.extra.boss,card.ability.extra.deck)
+        }
+    end,
+    rarity = 3,
+    atlas = "JoJokers",
+    pos = {x=0,y=4},
+    cost = 10,
+    remove_from_deck = function(self, card, from_debuff) 
+        self.secAbility = false
+        SOULS.PERM_BONUS_TRIGGED = false
+        SOULS.CONSEC = 0
+        if card.ability.extra.deck == "Red Deck" then
+            G.GAME.round_resets.discards = G.GAME.round_resets.discards - 1
+			ease_discard(-1)
+        elseif card.ability.extra.deck == "Blue Deck" or card.ability.extra.deck == "Black Deck" then
+            G.GAME.round_resets.hands = G.GAME.round_resets.hands - 1
+			ease_hands_played(-1)
+        elseif card.ability.extra.deck == "Ghost Deck" then
+            G.GAME.spectral_rates = G.GAME.spectral_rates / 2
+        elseif card.ability.extra.deck == "Checkered Deck" then
+            G.GAME.souls_checkered_smear = false
+        elseif card.ability.extra.deck == "Zodiac Deck" then
+            G.GAME.souls_zodiac_discount = false
+        end
+    end,
+    calculate = function (self,card,context)
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not card.ability.extra.abilityStopper then
+            card.ability.extra.boss = SOULS.GET_BOSS(G.GAME.blind.name)
+            --card.ability.extra.boss = 'The Psychic'
+            card.ability.extra.souls = card.ability.extra.souls + 1
+            card.ability.extra.abilityStopper = true
+            if card.ability.extra.souls >= 3 then
+                card.ability.extra.deck = G.GAME.selected_back.name
+                print(card.ability.extra.deck)
+                return {
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                }
+            end
+            return {
+                message = "Stolen!",
+                card = card
+            }
+        end
+        
+        if card.ability.extra.boss ~= "" then
+            if self.secAbility then
+                local bossContext = SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].contextFunc(context)
+                local deckContext = SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].contextFunc(context)
+
+                if bossContext and deckContext then
+                    local newTab = SOULS.DOUBLE_FUNC(SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].func(self,card,context),SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].func(self,card,context))
+                    return newTab
+                else
+                    if bossContext then
+                        return SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].func(self,card,context)
+                    end
+    
+                    if deckContext then
+                        return SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].func(self,card,context)
+                    end
+                end
+            else
+                if SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].contextFunc(context) then
+                    return SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].func(self,card,context)
+                end
+            end
+        end
+
+
+        if context.ending_shop and card.ability.extra.abilityStopper == true then --In place so ability only triggers once (it triggered 14 times with the bool)
+            card.ability.extra.abilityStopper = false
+        end
+    end,
+    calc_dollar_bonus = function(self,card)
+        if card.ability.extra.deck == "Yellow Deck" or card.ability.extra.deck == "Green Deck" then
+            return SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].func()
+        end
+    end
+
+}
+
+local cream = {
+    key ="cream",
+    name = "Cream",
+    loc_txt = {
+        name = "Cream",
+        text = {
+            "Destroy the {C:attention}first{} card on every {C:chips}hand{}",
+        }
+    },
+    config = {extra = {
+        cardsDestroyed = 0,
+        deactivateDestroy = false}
+    },
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.cardsDestroyed,
+            card.ability.extra.deactivateDestroy
+        }
+        return {
+            vars = vars,
+            main_end = JOJO.GENERATE_HINT(
+                self,
+                "Destroy a Blue Card...",
+                {"Every 4 cards destoryed,",
+                "create a negative black hole"}
+            )}
+    end,
+    rarity = 3,
+    atlas = "JoJokers",
+    pos = {x=4,y=4},
+    cost = 10,
+    calculate = function (self,card,context)
+        if context.before and not context.blueprint then
+            card.ability.extra.deactivateDestroy = false
+            if self.secAbility == false then
+                if context.full_hand[1].seal == "Blue"then
+                    G.E_MANAGER:add_event(Event({func = function()
+                        card:juice_up(0.8, 0.8)
+                    return true end }))
+    
+                    return {
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                    }
+                end
+            end
+        end
+
+        if context.destroying_card and card.ability.extra.deactivateDestroy == false then
+            card.ability.extra.deactivateDestroy = true
+            card.ability.extra.cardsDestroyed = card.ability.extra.cardsDestroyed + 1
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Obliterate!",colour=G.C.PURPLE})
+            
+            return {
+                remove = true
+            }
+        end
+
+        if context.after and not context.repetition then
+            if self.secAbility == true then
+                G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.8, 0.8)
+                return true end }))
+
+                if card.ability.extra.cardsDestroyed % 4 == 0 then
+                    local checkCard = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_black_hole')
+                    checkCard:set_edition({negative = true},true)
+                    checkCard:add_to_deck()
+                    G.consumeables:emplace(checkCard)
+                    play_sound('explosion_buildup1')
+                    return {
+                        message = "Embrace the Void!"
+                    }
+                end
+            end
         end
     end
 }
@@ -453,86 +643,9 @@ local the_world = {
     end
 }
 
-local cream = {
-    key ="cream",
-    name = "Cream",
-    loc_txt = {
-        name = "Cream",
-        text = {
-            "{C:mult}Destroy{} the first card on every hand",
-            
-        }
-    },
-    config = {extra = {
-        cardsDestroyed = 0,
-        deactivateDestroy = false}
-    },
-    loc_vars = function(self,info_queue,card)
-        local vars = {
-            card.ability.extra.cardsDestroyed,
-            card.ability.extra.deactivateDestroy
-        }
-        return {
-            vars = vars,
-            main_end = JOJO.GENERATE_HINT(
-                self,
-                "Destroy a Blue Card...",
-                {"Every 4 cards destoryed,",
-                "spawn a negative black hole"}
-            )}
-    end,
-    rarity = 3,
-    atlas = "JoJokers",
-    pos = {x=4,y=4},
-    cost = 10,
-    calculate = function (self,card,context)
-        if context.before then
-            card.ability.extra.deactivateDestroy = false
-            if self.secAbility == false then
-                if context.full_hand[1].seal == "Blue"then
-                    G.E_MANAGER:add_event(Event({func = function()
-                        card:juice_up(0.8, 0.8)
-                    return true end }))
-    
-                    return {
-                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
-                    }
-                end
-            end
-        end
 
-        if context.destroying_card and card.ability.extra.deactivateDestroy == false then
-            card.ability.extra.deactivateDestroy = true
-            card.ability.extra.cardsDestroyed = card.ability.extra.cardsDestroyed + 1
-            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Obliterate!",colour=G.C.PURPLE})
-            
-            return {
-                remove = true
-            }
-        end
-
-        if context.after and not context.repetition then
-            if self.secAbility == true then
-                G.E_MANAGER:add_event(Event({func = function()
-                    card:juice_up(0.8, 0.8)
-                return true end }))
-
-                if card.ability.extra.cardsDestroyed % 4 == 0 then
-                    local checkCard = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_black_hole')
-                    checkCard:set_edition({negative = true},true)
-                    checkCard:add_to_deck()
-                    G.consumeables:emplace(checkCard)
-                    play_sound('explosion_buildup1')
-                    return {
-                        message = "Embrace the Void!"
-                    }
-                end
-            end
-        end
-    end
-}
 
 return {
     name = "Part 3 Stands",
-    list = {star_platinum,magician_red,hermit_purple,sliver_chariot,cream,the_world}
+    list = {star_platinum,magician_red,hermit_purple,sliver_chariot,osiris,cream,the_world}
 }

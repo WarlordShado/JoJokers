@@ -23,3 +23,81 @@ payload = """
     end
 """
 match_indent = true
+
+#Add discount for Limp Bizkit
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('Astronomer') > 0 then self.cost = 0 end"
+position = "before"
+payload = """
+    if (self.ability.set == 'Joker' or (self.ability.set == 'Booster' and self.ability.name:find('Buffoon'))) and SMODS.find_card("j_jojo_limp_bizkit") then
+        if G.GAME.limpActive then
+            self.cost = self.cost * 0.5
+        end
+    end
+
+    if not (self.ability.set == 'Joker' or (self.ability.set == 'Booster' and self.ability.name:find('Buffoon'))) then
+        if G.GAME.souls_zodiac_discount then
+            self.cost = self.cost * 0.5
+        end
+    end
+"""
+match_indent = true
+
+#Used to apply smeared effect and zodiac discount effect
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "castle_card = {suit = 'Spades'},"
+position = "after"
+payload = """
+    souls_checkered_smear = false,
+    souls_zodiac_discount = false,
+    lucky_trigger_both = false,
+"""
+match_indent = true
+
+#Allow smeared effect to activate
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "if next(find_joker('Smeared Joker')) and (self.base.suit == 'Hearts' or self.base.suit == 'Diamonds') == (suit == 'Hearts' or suit == 'Diamonds') then"
+position = "at"
+payload = """
+    if (next(find_joker('Smeared Joker')) or G.GAME.souls_checkered_smear == true) and (self.base.suit == 'Hearts' or self.base.suit == 'Diamonds') == (suit == 'Hearts' or suit == 'Diamonds') then
+"""
+match_indent = true
+
+#Used for Hey Ya's secret ability
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = """
+    local p_dollars = card:get_p_dollars()
+    if p_dollars > 0 then 
+        ret.p_dollars = p_dollars
+    end
+"""
+position = "after"
+payload = """
+    if card.lucky_trigger and G.GAME.lucky_trigger_both then
+        if not ret.p_dollars then
+            ret.p_dollars = 0
+        end
+
+        if not ret.mult then
+            ret.mult = 0
+        end
+
+        if ret.p_dollars >= 20 and ret.mult < 20 then
+            ret.mult = ret.mult + 20
+        elseif ret.p_dollars < 20 and ret.mult >= 20 then
+            ret.p_dollars = ret.p_dollars + 20
+        else
+            ret.p_dollars = ret.p_dollars * 1.5
+            ret.mult = ret.mult * 1.5 
+        end
+    end
+"""
+match_indent = true

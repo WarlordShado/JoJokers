@@ -6,7 +6,7 @@ local tusk = {
     loc_txt = {
         name = "Tusk",
         text = {
-            "{C:attention}#2# to #3#{} chance to {C:attention}Retrigger{} a card",
+            "{C:green}#2# in #3#{} chance to retrigger a card",
             "{C:inactive}Max of #1# Times{}",
         }
     },
@@ -29,7 +29,7 @@ local tusk = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "The 13th Fibonacci...",
-            {"Flat 1/" .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
+            {"Flat 1 in " .. card.ability.extra.editionOdds .. " chance to add","a random edition to a played card"}
         )}
     end,
     rarity = 3,
@@ -52,17 +52,7 @@ local tusk = {
         local addEdition = function(cardCheck) 
             local editionChance = math.random(1,card.ability.extra.editionOdds)
             if editionChance == 1 then
-                local edition
-                local getEdition = math.random(1,3)
-                if getEdition <= 1 then
-                    edition = {polychrome = true}
-                elseif getEdition <= 2 then
-                    edition = {foil = true}
-                else
-                    edition = {holo = true}
-                end
-
-                cardCheck:set_edition(edition,true)
+                JOJO.APPLY_EDITION(cardCheck)
                 return true
             end
             return false
@@ -72,7 +62,7 @@ local tusk = {
             local isDone = false
             local repeats = 0
 
-            if self.secAbility == true and not context.other_card.edition and addEdition(context.other_card) then
+            if self.secAbility == true and not context.other_card.edition and addEdition(context.other_card) and not context.blueprint then
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Infinte Rotation!"})
             end
             
@@ -94,6 +84,63 @@ local tusk = {
                 repetitions = repeats,
                 card = context.other_card
             }
+        end
+    end
+}
+
+local hey_ya = {
+    key ="hey_ya",
+    name = "Hey Ya",
+    loc_txt = {
+        name = "Hey Ya!",
+        text = {
+            "Doubles all {C:attention}listed{}",
+            "{C:green}probabilities{}",
+            "{C:inactive}(ex:{C:green}1 in 3{} -> {C:green}2 in 3{}){}",
+        }
+    },
+    config = {extra = {
+        oddsMult = 2,
+        luckyTrigged = 0,
+        luckyNeeded = 20
+    }
+    },
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.oddsMult
+        }
+        
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "Become the luckiest man alive ("..card.ability.extra.luckyTrigged.."/"..card.ability.extra.luckyNeeded..")",
+            {"If a Lucky Card triggers","gain both rewards","If both rewards hit","increase them by 50%"}
+        )}
+    end,
+    rarity = 3,
+    atlas = "JoJokers7",
+    pos = {x=5,y=0},
+    cost = 7,
+    blueprint_compat = false,
+    add_to_deck = function(self, card)
+        G.GAME.probabilities.normal = G.GAME.probabilities.normal * card.ability.extra.oddsMult * math.max(1, (2 ^ #find_joker('Oops! All 6s')))
+      end,
+      remove_from_deck = function(self, card)
+        if self.secAbility then
+            G.GAME.lucky_trigger_both = false
+        end
+        self.secAbility = false
+        G.GAME.probabilities.normal = G.GAME.probabilities.normal / card.ability.extra.oddsMult * math.max(1, (2 ^ #find_joker('Oops! All 6s')))
+      end,
+    calculate = function (self,card,context)
+        if context.individual and context.other_card.lucky_trigger and not context.blueprint and not self.secAbility then
+            card.ability.extra.luckyTrigged = card.ability.extra.luckyTrigged + 1
+            if card.ability.extra.luckyTrigged >= card.ability.extra.luckyNeeded then
+                G.GAME.lucky_trigger_both = true
+                return {
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                }
+            end
         end
     end
 }
@@ -133,6 +180,10 @@ local dirty_deeds = {
     blueprint_compat = false,
     add_to_deck = function(self)
 		G.GAME.pool_flags.hasD4C = true
+	end,
+    remove_from_deck = function(self)
+        self.secAbility = false
+		G.GAME.pool_flags.hasD4C = false
 	end,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint then
@@ -184,7 +235,7 @@ local dirty_deeds_love_train = {
     loc_txt = {
         name = "D4C: Love Train",
         text = {
-            "Upon {C:attention}Selling, Destroying, or Using{} a Card or Joker,",
+            "Upon {C:attention}Selling or Using{} a Card or Joker,",
             "Respawn the Joker. Max of {C:attention}#1#{} times each ante",
             "{C:inactive}(Respawns Left:#2# ){}"
         }
@@ -309,7 +360,6 @@ local dirty_deeds_love_train = {
                         respawnCard()
                     end
                 end
-                
             end
         end
     end
@@ -317,5 +367,5 @@ local dirty_deeds_love_train = {
 
 return {
     name="Part 7 Stands",
-    list={tusk,dirty_deeds,dirty_deeds_love_train}
+    list={tusk,hey_ya,dirty_deeds,dirty_deeds_love_train}
 }

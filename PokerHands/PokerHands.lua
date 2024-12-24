@@ -1,6 +1,6 @@
 --Some jokers have their own poker hands
 
-local redFury = {
+local crossfire = {
     key = 'Cross_Fire_Hurricane',
     chips = 200,
     mult = 15,
@@ -14,14 +14,12 @@ local redFury = {
         { 'H_Q',    true },
     },
     loc_txt = {
-        ['en-us'] = {
-            name = 'Cross Fire Hurricane',
-            description = {
-                'A Full House made of',
-                'King of Hearts and Diamonds and',
-                'Queen of Hearts and Diamonds',
-                "Must have Magician's Red"
-            }
+        name = 'Cross Fire Hurricane',
+        description = {
+            'A Full House made of',
+            'King of Hearts and Diamonds and',
+            'Queen of Hearts and Diamonds',
+            "Must have Magician's Red"
         }
     },
     visible = false,
@@ -29,8 +27,6 @@ local redFury = {
         if next(find_joker("Magician's Red")) then
             if next(parts._3) and next(parts._2) then
                 local _crossfire = SMODS.merge_lists(parts._2,parts._3)
-                
-                --local isRedFury = true
                 local kingCounter = 0
                 local queenCounter = 0
                 for j = 1, #_crossfire do
@@ -48,5 +44,5 @@ local redFury = {
 
 return {
     name="Poker Hands",
-    list={redFury}
+    list={crossfire}
 }
