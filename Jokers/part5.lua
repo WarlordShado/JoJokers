@@ -151,6 +151,119 @@ local gold_exp_req = {
     end
 }
 
+local notorius_big = {
+    key ="notorius_big",
+    name="Notorius BIG",
+    loc_txt = {
+        name = "Notorius B.I.G",
+        text = {
+            "Saves you from {C:attention}Death{}"
+        }
+    },
+    config = {extra = {}},
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.overflow,
+            card.ability.extra.secAbility,
+            card.ability.extra.secAbilityText,
+            card.ability.extra.firstTimeStopper,
+            card.ability.extra.abilityStopper}
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            self,
+            "I hate my life",
+            "Evolve"
+        )}
+    end,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = false,
+    atlas = "JoJokers",
+    pos = {x=6,y=11},
+    cost = 6,
+    calculate = function (self,card,context)
+        if context.game_over then
+            return {
+                message = JOJO.EVOLVE(self,card,"j_jojo_notorius_big_awaken"),
+                saved = true,
+                colour = G.C.RED
+            }
+        end
+    end
+}
+
+local notorius_big_awaken = {
+    key ="notorius_big_awaken",
+    name="Notorius BIG Awakened",
+    loc_txt = {
+        name = "Notorius B.I.G Awakened",
+        text = {
+            "{C:sticker}Eternal{}",
+            "This joker gains {C:mult}+#2#{} mult",
+            "for every card {C:attention}scored{} this round",
+            "{C:inactive}(Currently: {C:mult}+#1#{C:inactive} mult)"
+        }
+    },
+    config = {extra = {
+        mult = 0,
+        multGain = 2,
+        abilityStopper = false
+    }},
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.mult,
+            card.ability.extra.multGain,
+            card.ability.extra.abilityStopper
+        }
+
+        return {vars = vars}
+    end,
+    rarity = 2,
+    blueprint_compat = true,
+    atlas = "JoJokers",
+    pos = {x=6,y=11},
+    cost = 6,
+    yes_pool_flag = false,
+    add_to_deck = function(self,card)
+        card.ability.eternal = true
+    end,
+    calculate = function (self,card,context)
+        if context.individual and context.cardarea == G.play and not context.blueprint then
+            card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multGain
+
+            G.E_MANAGER:add_event(Event({func = function()
+                    card:juice_up(0.4, 0.4)
+            return true end }))
+
+            return {
+                message = localize('k_upgrade_ex'),
+                card = card
+            }
+        end
+
+        if context.joker_main then
+            return {
+                message = localize{type='variable',key='a_mult',vars={card.ability.extra.mult}},
+                mult_mod = card.ability.extra.mult
+            }
+        end
+
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.abilityStopper == false then
+            card.ability.extra.abilityStopper = true
+            card.ability.extra.mult = 0
+            return{
+                card = card,
+                message = localize('k_reset')
+            }
+        end
+
+        if context.ending_shop and card.ability.extra.abilityStopper == true then --In place so ability only triggers once (it triggered 14 times with the bool)
+            card.ability.extra.abilityStopper = false
+        end
+    end
+}
+
 local kraftwork = {
     key ="kraftwork",
     name="Kraftwork",
@@ -159,8 +272,8 @@ local kraftwork = {
         text = {
             "Gives {C:attention}score{} at the beginning of the",
             "round. Amount given is the {C:attention}score{}",
-            "{C:attention}overflow{} from previous blind",
-            "{C:mult}Can only gain 3/4 of total blind score{}"
+            "{C:special}overflow{} from previous blind",
+            "{C:inactive}(Can only gain 3/4 of total blind score){}"
         }
     },
     config = {extra = {
@@ -225,5 +338,5 @@ local kraftwork = {
 
 return {
     name="Part 5 Stands",
-    list={gold_exp,gold_exp_req,kraftwork}
+    list={gold_exp,gold_exp_req,notorius_big,notorius_big_awaken,kraftwork}
 }

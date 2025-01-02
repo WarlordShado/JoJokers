@@ -42,7 +42,13 @@ local star_platinum = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "Achieve 50 power in 1 hand...",
-            {"One final hand of the round,","If currents chips is 100 or more","Turn all discards into X Mult"," and gain "..card.ability.extra.hands.." hands","Reset chips and X Mult at end of round"}
+            {
+                "One final hand of the round,",
+                "If currents chips is 100 or more",
+                "Turn all discards into X Mult",
+                "and gain "..card.ability.extra.hands.." hands",
+                "Reset chips and X Mult at end of round"
+            }
         )}
     end,
     calculate = function(self, card, context)
@@ -84,7 +90,7 @@ local star_platinum = {
             end
         end
 
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint then
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint then
             if card.ability.extra.timeStopActive == true then
                 card.ability.extra.chips = 0
                 card.ability.extra.timeStopActive = false
@@ -276,7 +282,7 @@ local sliver_chariot = {
         text = {
             "Gains {C:chips}+#3#{} Chips & {C:mult}+#4#{} Mult",
             "if played hand contains a {C:attention}Straight Flush{}",
-            "{C:inactive}(Currently {C:chips}+#2#{} Chips, {C:mult}+#1#{} Mult){}",
+            "{C:inactive}(Currently {C:chips}+#2#{C:inactive} Chips, {C:mult}+#1#{C:inactive} Mult)",
         }
     },
     config = {extra = {
@@ -370,7 +376,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     loc_txt = {
         name = "Osiris",
         text = {
-            "Gain a {C:legendary}Boss Soul{} after defeating a boss",
+            "Gain a {C:soul}Boss Soul{} after defeating a boss",
             "Gains a different {C:attention}ability{} depending on boss",
             "{C:inactive}(If boss is modded, select a random soul){}"
         }

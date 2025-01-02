@@ -25,3 +25,14 @@ SMODS.Atlas({
 	px = 71,
 	py = 95
 })
+
+local jojocolors = loc_colour
+function loc_colour(_c, _default)
+  if not G.ARGS.LOC_COLOURS then
+    jojocolors()
+  end
+  G.ARGS.LOC_COLOURS["sticker"] = HEX('c75985')
+  G.ARGS.LOC_COLOURS["special"] = HEX('25ba00')
+  G.ARGS.LOC_COLOURS["soul"] = HEX('0084d6')
+  return jojocolors(_c, _default)
+end

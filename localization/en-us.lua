@@ -9,7 +9,7 @@ return {
                 name = "Boss Soul",
                 text = {
                     "Defeat a Boss to",
-                    "gain a {C:legendary}Boss Soul{}"
+                    "gain a {C:soul}Boss Soul{}"
                 }
             },
             the_hook = {
@@ -272,7 +272,7 @@ return {
                 name = "Abandon Deck Attunement",
                 text = {
                     "Gain {C:mult}+5{} mult for every hand",
-                    "that doesnt have a scoring {C:attention}face{} card"
+                    "that doesnt have a {C:attention}scoring{} face card"
                 }
             },
             checkered_deck = {

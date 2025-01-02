@@ -86,8 +86,8 @@ local harvest = {
         name = "Harvest",
         text = {
             "Gains {C:money}$#2#{}",
-            "if first hand has 1 scoring {C:attention}Gold Card{}",
-            "{C:inactive}(Currently {C:money}$#1#{} ){}"
+            "if first hand has exactly 1 scoring {C:attention}Gold Card{}",
+            "{C:inactive}(Currently: {C:money}$#1#{C:inactive}){}"
         }
     },
     config = {extra = {
@@ -164,8 +164,8 @@ local killer_queen = {
         text = {
             "Every {C:attention}Joker{} has a",
             "{C:green}#6# in #5#{} chance to {C:attention}Upgrade{}",
-            "This joker by {C:chips}#2# Chips{} and {C:mult}#4# Mult{}",
-            "If upgrade succeeds, {C:green}#6# in #7#{} chance to destroy said joker",
+            "this joker by {C:chips}#2# Chips{} and {C:mult}#4# Mult{}",
+            "Afterwards, {C:green}#6# in #7#{} chance to destroy joker",
             "{C:inactive}(Currently: {C:chips}#1# Chips{} and {C:mult}#3# Mult{}){}"
         }
     },
@@ -202,8 +202,8 @@ local killer_queen = {
         main_end = JOJO.GENERATE_HINT(
             self,
             "Kill a dozen people",
-            {(G.GAME.probabilities.normal or 1).." in "..card.ability.extra.handOdds.." chance upon killing a joker",
-            "to gain +1 hand size",
+            {(G.GAME.probabilities.normal or 1).." in "..card.ability.extra.handOdds.." to gain +1 hand size",
+            "when a joker is destroyed",
             "Currently: +"..card.ability.extra.handSize.." hand size"}
         )}
     end,
@@ -212,6 +212,7 @@ local killer_queen = {
     pos = {x=6,y=5},
     cost = 6,
     remove_from_deck = function(self,card)
+        self.secAbility = false
         if self.secAbility then
             G.hand:change_size(-card.ability.extra.handSize)
         end

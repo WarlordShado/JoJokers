@@ -162,7 +162,7 @@ local googoodolls = {
     loc_txt = {
         name = "GooGoo Dolls",
         text = {
-            "{C:attention}Invert{} the rank of number cards",
+            "{C:special}Invert{} the rank of number cards",
             "{C:inactive}(Example: 10 = 2){}"
         }
     },
@@ -194,7 +194,7 @@ local limp_bizkit = {
         name = "Limp Bizkit",
         text = {
             "Upon {C:attention}Selling{} a {C:attention}Joker{}",
-            ", create a {C:dark_edition}Negative Perishable{} copy",
+            ", create a {C:dark_edition}Negative{} {C:sticker}Perishable{} copy",
             "{C:inactive}(Doesn't work if Joker is already Perishable){}"
         }
     },

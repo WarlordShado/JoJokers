@@ -96,7 +96,7 @@ local hey_ya = {
         text = {
             "Doubles all {C:attention}listed{}",
             "{C:green}probabilities{}",
-            "{C:inactive}(ex:{C:green}1 in 3{} -> {C:green}2 in 3{}){}",
+            "{C:inactive}(ex:{C:green}1 in 3{C:inactive} -> {C:green}2 in 3{C:inactive}){}",
         }
     },
     config = {extra = {

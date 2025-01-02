@@ -360,7 +360,7 @@ SOULS.BOSS_TEXT_TABLE = {
         end,
         func = function(self,card,context)
             for i, card in ipairs(context.full_hand) do
-                if not card.seal then
+                if not card.seal and card:is_face() then
                     card:set_seal('Gold',true)
                     return {
                         message = "Amber Acorn!"
