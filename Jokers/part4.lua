@@ -63,10 +63,10 @@ local crazy_diamond = {
                         end
 
                         if #card.ability.extra.cardToRestore >= 2 and not card.ability.secret_ability then
-                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
                         end
 
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Crazy Diamond!"})
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Crazy Diamond!"})
                         card.ability.extra.cardToRestore = {}
                     return true end
                 }))
@@ -75,6 +75,67 @@ local crazy_diamond = {
                     playing_cards_added = true
                 }
             end
+        end
+    end
+}
+
+local the_hand = {
+    key ="the_hand",
+    name = "The Hand",
+    loc_txt = {
+        name = "The Hand",
+        text = {
+            "{C:chips}-#1#{} Hands",
+            "{C:mult}+#2#{} Discards"
+        }
+    },
+    config = {extra = {
+            hands = 2,
+            discards = 2,
+            totalDisThisRound = 0,
+            money = 3
+        }
+    },
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.hands,
+            card.ability.extra.discards,
+            card.ability.extra.totalDisThisRound,
+            card.ability.extra.money
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            card,
+            "Remove 2 Dozen cards before attacking",
+            "If discard contains 5 cards, Earn $3"
+        )}
+    end,
+    rarity = 1,
+    atlas = "JoJokers",
+    pos = {x=1,y=5},
+    cost = 4,
+    add_to_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.discards = G.GAME.round_resets.discards + card.ability.extra.discards
+        G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.hands
+        ease_discard(card.ability.extra.discards)
+        ease_hands_played(-card.ability.extra.hands)
+    end,
+    remove_from_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.discards
+        G.GAME.round_resets.hands = G.GAME.round_resets.hands + card.ability.extra.hands
+        ease_discard(-card.ability.extra.discards)
+        ease_hands_played(card.ability.extra.hands)
+    end,
+    calculate = function (self,card,context)
+        if context.discard and not context.blueprint and not card.ability.secret_ability then
+            card.ability.extra.totalDisThisRound = card.ability.extra.totalDisThisRound + 1
+            if card.ability.extra.totalDisThisRound >= 24 then
+                card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
+            end
+        elseif context.pre_discard and not context.blueprint and #context.full_hand == 5 and card.ability.secret_ability then
+            ease_dollars(card.ability.extra.money)
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "The Hand!"})
         end
     end
 }
@@ -266,5 +327,5 @@ local killer_queen = {
 
 return {
     name = "Part 4 Stands",
-    list = {harvest,crazy_diamond,killer_queen}
+    list = {crazy_diamond,the_hand,harvest,killer_queen}
 }

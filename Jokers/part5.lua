@@ -111,7 +111,7 @@ local gold_exp_req = {
     atlas = "JoJokers",
     pos = {x=4,y=12},
     cost = 6,
-    yes_pool_flag = false,
+    in_pool = function(self, args) return false end,
     add_to_deck = function(self,card)
         card.ability.secret_ability = true
         G.GAME.pool_flags.hasGoldChar = false 
@@ -224,7 +224,7 @@ local notorius_big_awaken = {
     atlas = "JoJokers",
     pos = {x=6,y=11},
     cost = 6,
-    yes_pool_flag = false,
+    in_pool = function(self, args) return false end,
     add_to_deck = function(self,card)
         card.ability.eternal = true
     end,

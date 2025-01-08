@@ -45,6 +45,15 @@ JOJO.GET_MOST_PLAYED_HAND = function()
     return _hand
 end
 
+JOJO.TABLE_CONTAINS_ELEMENT = function(table,element)
+    for i,item in ipairs(table) do
+        if item == element then
+            return true
+        end
+    end
+    return false
+end
+
 JOJO.REMOVE_JOKER = function(card)
     play_sound('tarot1')
     card.T.r = -0.2

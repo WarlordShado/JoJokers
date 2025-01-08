@@ -136,7 +136,7 @@ local tusk_two = {
     atlas = "JoJokers7",
     pos = {x=1,y=0},
     cost = 10,
-    yes_pool_flag = false,
+    in_pool = function(self, args) return false end,
     calculate = function (self,card,context)
         if context.game_over and not card.ability.secret_ability then
             card.ability.extra.x_mult = 2
@@ -240,7 +240,7 @@ local tusk_three = {
     atlas = "JoJokers7",
     pos = {x=2,y=0},
     cost = 10,
-    yes_pool_flag = false,
+    in_pool = function(self, args) return false end,
     calculate = function (self,card,context)
         if context.discard and not context.blueprint and G.GAME.current_round.discards_used <= 0 and #context.full_hand == 1 then
             return {
@@ -342,7 +342,7 @@ local tusk_four = {
     atlas = "JoJokers7",
     pos = {x=3,y=0},
     cost = 10,
-    yes_pool_flag = false,
+    in_pool = function(self, args) return false end,
     calculate = function (self,card,context)
         if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and not card.ability.secret_ability then
             if card.ability.extra.totalSpins >= 144 then
@@ -576,7 +576,7 @@ local dirty_deeds_love_train = {
     pos = {x=2,y=3},
     cost = 10,
     blueprint_compat = false,
-    yes_pool_flag = false,
+    in_pool = function(self, args) return false end,
     add_to_deck = function(self,card)
         card.ability.secret_ability = true
     end,
