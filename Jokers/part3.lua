@@ -40,7 +40,7 @@ local star_platinum = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Achieve 50 power in 1 hand...",
             {
                 "One final hand of the round,",
@@ -79,7 +79,7 @@ local star_platinum = {
                 }
             end
         end
-        if context.before and self.secAbility == true and not context.blueprint then
+        if context.before and card.ability.secret_ability and not context.blueprint then
             if G.GAME.current_round.hands_left == 0 and card.ability.extra.chips >= 100 then 
                 card.ability.extra.timeStopActive = true
                 local currentDiscards = G.GAME.current_round.discards_left
@@ -99,10 +99,10 @@ local star_platinum = {
         end
 
         if context.joker_main and not context.blueprint then
-            if self.secAbility == false then
+            if not card.ability.secret_ability then
                 if card.ability.extra.currentPower >= 50 then
                     return {
-                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                     }
                 else
                     card.ability.extra.currentPower = 0
@@ -156,7 +156,7 @@ local magician_red = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Play a house of Rich and Caring Royals",
             {"When Cross Fire Hurricane is played, ",
             G.GAME.probabilities.normal.."/"..card.ability.extra.odds.." chance to level it up"
@@ -168,9 +168,9 @@ local magician_red = {
     pos = {x=1,y=0},
     cost = 4,
     calculate = function (self,card,context)   
-        if context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint and self.secAbility == false then
+        if context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) and not context.blueprint and not card.ability.secret_ability then
             return {
-                message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                message = JOJO.ACTIVATE_SECRET_ABILITY(card)
             }
         elseif context.before and next(context.poker_hands['jojo_Cross_Fire_Hurricane']) then
             if pseudorandom("magicred") < G.GAME.probabilities.normal/card.ability.extra.odds then
@@ -226,7 +226,7 @@ local hermit_purple = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Obatin evidence on Dio's Location",
             {"Upon selling a Photograph"," Create a Negative Stand"," of a random main villian"}
         )}
@@ -243,7 +243,7 @@ local hermit_purple = {
 				card = card,
 			}
 		end
-        if self.secAbility and context.selling_card and not context.blueprint then
+        if card.ability.secret_ability and context.selling_card and not context.blueprint then
             local possibleKeys = {"j_jojo_world","j_jojo_killer_queen"}
             if jojo_config.manga_joker then
                 table.insert(possibleKeys,"j_jojo_d4c")
@@ -261,7 +261,7 @@ local hermit_purple = {
                     G.jokers.cards[i-1].pinned = true
                     card.ability.extra.pinnedJokerName = G.jokers.cards[i-1].ability.name --Needed for Secert Ability
                     if card.ability.extra.pinnedJokerName == "Photograph" then
-                        card_eval_status_text(self, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(self)})
+                        card_eval_status_text(self, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
                     end
                     card_eval_status_text(G.jokers.cards[i-1], 'extra', nil, nil, nil, {message = "Pinned!", colour = G.C.CHIPS})
                 end
@@ -305,7 +305,7 @@ local sliver_chariot = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Send the Steel Straight Through...",
             "All played steel cards give X" .. card.ability.extra.Xmult .. " mult"
         )}
@@ -315,7 +315,7 @@ local sliver_chariot = {
     pos = {x=4,y=0},
     cost = 4,
     calculate = function (self,card,context)   
-        if context.before and next(context.poker_hands['Straight Flush']) and not context.blueprint and self.secAbility == false then
+        if context.before and next(context.poker_hands['Straight Flush']) and not context.blueprint and not card.ability.secret_ability then
             local steel = 0
             for i = 1,#context.scoring_hand do
                 if context.scoring_hand[i].ability.name == 'Steel Card' then
@@ -328,13 +328,13 @@ local sliver_chariot = {
                 return true end }))
 
                 return {
-                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                 }
             end
         end
 
         if context.cardarea == G.play and context.individual and not context.other_card.debuff and not context.end_of_round and
-            context.other_card.ability.name == 'Steel Card' and self.secAbility == true then
+            context.other_card.ability.name == 'Steel Card' and card.ability.secret_ability then
 
             return {
                 message = localize{type = 'variable', key = 'a_xmult', vars = {card.ability.extra.Xmult}}, 
@@ -397,12 +397,12 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         }
         
         G.GAME.trigedVerdentLeafBoss = false --used to make sure that Verdent Leaf soul ability only triggers once
-        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(self,card.ability.extra.boss,info_queue)
-        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(self,card.ability.extra.deck,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(card,card.ability.extra.boss,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(card,card.ability.extra.deck,info_queue)
 
         return {
             vars = vars,
-            main_end = SOULS.GENERATE_MAIN_END(self,card.ability.extra.boss,card.ability.extra.deck)
+            main_end = SOULS.GENERATE_MAIN_END(card,card.ability.extra.boss,card.ability.extra.deck)
         }
     end,
     rarity = 3,
@@ -410,7 +410,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     pos = {x=0,y=4},
     cost = 10,
     remove_from_deck = function(self, card, from_debuff) 
-        self.secAbility = false
+        card.ability.secret_ability = false
         SOULS.PERM_BONUS_TRIGGED = false
         SOULS.CONSEC = 0
         if card.ability.extra.deck == "Red Deck" then
@@ -437,7 +437,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
                 card.ability.extra.deck = G.GAME.selected_back.name
                 print(card.ability.extra.deck)
                 return {
-                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                 }
             end
             return {
@@ -447,7 +447,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         end
         
         if card.ability.extra.boss ~= "" then
-            if self.secAbility then
+            if card.ability.secret_ability then
                 local bossContext = SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].contextFunc(context)
                 local deckContext = SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].contextFunc(context)
 
@@ -504,7 +504,7 @@ local cream = {
         return {
             vars = vars,
             main_end = JOJO.GENERATE_HINT(
-                self,
+                card,
                 "Destroy a Blue Card...",
                 {"Every 4 cards destoryed,",
                 "create a negative black hole"}
@@ -517,14 +517,14 @@ local cream = {
     calculate = function (self,card,context)
         if context.before and not context.blueprint then
             card.ability.extra.deactivateDestroy = false
-            if self.secAbility == false then
+            if not card.ability.secret_ability then
                 if context.full_hand[1].seal == "Blue"then
                     G.E_MANAGER:add_event(Event({func = function()
                         card:juice_up(0.8, 0.8)
                     return true end }))
     
                     return {
-                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                     }
                 end
             end
@@ -541,7 +541,7 @@ local cream = {
         end
 
         if context.after and not context.repetition then
-            if self.secAbility == true then
+            if card.ability.secret_ability then
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))
@@ -595,7 +595,7 @@ local the_world = {
 
         return {vars = vars,
             main_end = JOJO.GENERATE_HINT(
-                self,
+                card,
                 "Halt Time for 5 seconds...",
                 "Retrigger all Aces Twice"
             )}
@@ -607,7 +607,7 @@ local the_world = {
     blueprint_compat = false,
     calculate = function (self,card,context)
 
-        if context.cardarea == G.play and context.repetition and not context.repetition_only and self.secAbility == true then
+        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.secret_ability then
             if context.other_card.base.value == "Ace" then
                 return {
                     message = "Muda!",
@@ -626,11 +626,11 @@ local the_world = {
                         card.ability.extra.abilityStopper = true
                         ante_mod = ante_mod - card.ability.extra.ante_reduction
                         ease_ante(ante_mod)
-                        if card.ability.extra.seconds >= 5 and self.secAbility == false then
+                        if card.ability.extra.seconds >= 5 and not card.ability.secret_ability then
                             return {
-                                message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                                message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                             }
-                        elseif self.secAbility == false then
+                        elseif not card.ability.secret_ability then
                             card.ability.extra.seconds = card.ability.extra.seconds + 1
                         end
                         return {

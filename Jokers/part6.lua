@@ -35,7 +35,7 @@ local whitesnake = {
             }
             return {vars = vars,
                 main_end = JOJO.GENERATE_HINT(
-                    self,
+                    card,
                     "Collect more DISCs...",
                     "When stored Editions would overflow storage, create a Virus Card instead"
                 )}
@@ -91,9 +91,9 @@ local whitesnake = {
                                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})              
                             return true
                         end)}))
-                        if self.secAbility == false then
+                        if not card.ability.secret_ability then
                             return{
-                                message = JOJO.ACTIVATE_SECRET_ABILITY(self),
+                                message = JOJO.ACTIVATE_SECRET_ABILITY(card),
                             }
                         end
                     end
@@ -170,7 +170,7 @@ local googoodolls = {
     loc_vars = function(self,info_queue,card)
         return {
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "WIP",
             "Add a Gold Seal to first played gold card"
         )}
@@ -204,7 +204,7 @@ local limp_bizkit = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Grow the Army ("..card.ability.extra.jokerCount.."/15)",
             "All Jokers and Buffoon Packs in shop are 50% Cheaper"
         )}
@@ -214,11 +214,11 @@ local limp_bizkit = {
     pos = {x=5,y=14},
     cost = 6,
     blueprint_compat = false,
-    remove_from_deck= function(self)
-        if self.secAbility then
+    remove_from_deck= function(self,card)
+        if card.ability.secret_ability then
             G.GAME.limpActive = false
         end
-        self.secAbility = false
+        card.ability.secret_ability = false
     end,
     calculate = function (self,card,context)
         if context.selling_card and not context.blueprint then
@@ -236,9 +236,9 @@ local limp_bizkit = {
                     return true
                 end}))  
                 card.ability.extra.jokerCount = card.ability.extra.jokerCount + 1
-                if card.ability.extra.jokerCount >= 15 and not self.secAbility then
+                if card.ability.extra.jokerCount >= 15 and not card.ability.secret_ability then
                     G.GAME.limpActive = true --Used for secret ability 
-                    card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(self)})
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
                 else
                     card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Restored!"})
                 end

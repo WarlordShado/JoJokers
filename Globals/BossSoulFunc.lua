@@ -785,9 +785,9 @@ SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS = function(self,bossName,info_queue)
     info_queue[#info_queue+1] = {set = 'Other',key = _boss}
 end
 
-SOULS.GENERATE_SOULS_INFO_QUEUE_DECK = function(self,deck,info_queue)
+SOULS.GENERATE_SOULS_INFO_QUEUE_DECK = function(card,deck,info_queue)
     local _deck
-    if self.secAbility and deck ~= "" then
+    if card.ability.secret_ability and deck ~= "" then
         _deck = SOULS.DECK_TEXT_TABLE[deck].key
     else
         _deck = "default_deck"
@@ -795,13 +795,13 @@ SOULS.GENERATE_SOULS_INFO_QUEUE_DECK = function(self,deck,info_queue)
     info_queue[#info_queue+1] = {set = 'Other',key = _deck}
 end
 
-SOULS.GENERATE_MAIN_END = function(self,boss,deck)
+SOULS.GENERATE_MAIN_END = function(card,boss,deck)
     local content = {}
     local textToUse
     local color
 
     local _deck
-    if self.secAbility == true and deck ~= ""  then
+    if card.ability.secret_ability and deck ~= ""  then
         textToUse = "Gain an Ability based on Current Deck"
         _deck = deck
         color = G.C.SECONDARY_SET.Planet
@@ -832,7 +832,7 @@ SOULS.GENERATE_MAIN_END = function(self,boss,deck)
         {n=G.UIT.T, config={text = textToUse, colour = color, scale = 0.32}},
     }}
 
-    if self.secAbility and deck ~= "" then
+    if card.ability.secret_ability and deck ~= "" then
         content[#content + 1] = {n=G.UIT.R,config={align = "cm"},nodes={
             {n=G.UIT.T, config={text = "Current Deck: ".._deck, colour = SOULS.DECK_TEXT_TABLE[_deck].color, scale = 0.32}},
         }}

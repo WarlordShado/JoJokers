@@ -34,6 +34,13 @@ else
     osirisfuncs()
 end
 
+local SwitcherFunc, load_error = SMODS.load_file("Globals/SwitcherFunc.lua")
+if load_error then
+  sendDebugMessage ("The error is: "..load_error)
+else
+    SwitcherFunc()
+end
+
 --Load Joker Files
 load_Joker = function (file)
     sendDebugMessage("The File is:"..file)
@@ -48,12 +55,6 @@ load_Joker = function (file)
             for i, item in ipairs(curr_jokers.list) do
                 item.discovered = true
                 item.unlocked = true
-                item.secAbility = false
-                if not item.remove_from_deck then
-                    item.remove_from_deck = function(self) --Resest the Secert Ability when a game is over
-                        self.secAbility = false
-                    end
-                end
                 
                 SMODS.Joker(item)
             end
@@ -139,6 +140,26 @@ for _, file in ipairs(editions) do
         end
     end
 end
+
+
+local sticker = NFS.getDirectoryItems(mod_dir.."stickers")
+
+for _, file in ipairs(sticker) do
+    sendDebugMessage ("The file is: "..file)
+    local sticker, load_error = SMODS.load_file("stickers/"..file)
+    if load_error then
+        sendDebugMessage ("The error is: "..load_error)
+    else
+        local curr_consumable = sticker()
+        if curr_consumable.init then curr_consumable:init() end
+    
+        for i, item in ipairs(curr_consumable.list) do
+            item.discovered = true
+            item.unlocked = true
+            SMODS.Sticker(item)
+        end
+    end
+end 
 
 ----------------------------------------------
 ------------MOD CODE END----------------------

@@ -27,7 +27,7 @@ local gold_exp = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Obtain Requiem",
             "Evolve"
         )}
@@ -39,8 +39,8 @@ local gold_exp = {
     add_to_deck = function(self)
         G.GAME.pool_flags.hasGoldChar = true 
     end,
-    remove_from_deck = function(self)
-        self.secAbility = false
+    remove_from_deck = function(self,card)
+        card.ability.secret_ability = false
         G.GAME.pool_flags.hasGoldChar = false 
     end,
     calculate = function (self,card,context)
@@ -101,7 +101,7 @@ local gold_exp_req = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Evolves from Golden Experience",
             {"Upon defeating Blind,",
             "Gain the Reward Money 3 more times"}
@@ -111,9 +111,9 @@ local gold_exp_req = {
     atlas = "JoJokers",
     pos = {x=4,y=12},
     cost = 6,
-    no_pool_flag = false,
-    add_to_deck = function(self)
-        self.secAbility = true
+    yes_pool_flag = false,
+    add_to_deck = function(self,card)
+        card.ability.secret_ability = true
         G.GAME.pool_flags.hasGoldChar = false 
     end,
     calculate = function (self,card,context)
@@ -171,7 +171,7 @@ local notorius_big = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "I hate my life",
             "Evolve"
         )}
@@ -290,7 +290,7 @@ local kraftwork = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "WIP",
             "Add a Gold Seal to first played gold card"
         )}

@@ -27,7 +27,7 @@ local crazy_diamond = {
         
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Restore 2 lives at once...",
             {G.GAME.probabilities.normal.." in 8 chance to add a ","random seal to a card when restored"}
         )}
@@ -62,8 +62,8 @@ local crazy_diamond = {
                             G.hand:emplace(copy)
                         end
 
-                        if #card.ability.extra.cardToRestore >= 2 and self.secAbility == false then
-                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(self)})
+                        if #card.ability.extra.cardToRestore >= 2 and not card.ability.secret_ability then
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
                         end
 
                         card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Crazy Diamond!"})
@@ -103,7 +103,7 @@ local harvest = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Play the Golden Three...",
             "Add a Gold Seal to first played gold card"
         )}
@@ -113,7 +113,7 @@ local harvest = {
     pos = {x=3,y=7},
     cost = 6,
     calculate = function (self,card,context)
-        if context.before and next(context.poker_hands['Three of a Kind']) and #context.full_hand == 3 and not context.blueprint and self.secAbility == false then
+        if context.before and next(context.poker_hands['Three of a Kind']) and #context.full_hand == 3 and not context.blueprint and not card.ability.secret_ability then
             local gold = 0
             for i = 1,#context.scoring_hand do
                 if context.scoring_hand[i].ability.name == 'Gold Card' then
@@ -126,7 +126,7 @@ local harvest = {
                 return true end }))
 
                 return {
-                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                 }
             end
         end
@@ -135,7 +135,7 @@ local harvest = {
             local checkCard = context.full_hand[1]
             if checkCard.ability.name == 'Gold Card' then
                 card.ability.extra.money = card.ability.extra.money + card.ability.extra.money_gain 
-                if self.secAbility == true then
+                if card.ability.secret_ability then
                     checkCard:set_seal('Gold',true)
                 end
                 G.E_MANAGER:add_event(Event({func = function()
@@ -200,7 +200,7 @@ local killer_queen = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Kill a dozen people",
             {(G.GAME.probabilities.normal or 1).." in "..card.ability.extra.handOdds.." to gain +1 hand size",
             "when a joker is destroyed",
@@ -212,8 +212,8 @@ local killer_queen = {
     pos = {x=6,y=5},
     cost = 6,
     remove_from_deck = function(self,card)
-        self.secAbility = false
-        if self.secAbility then
+        card.ability.secret_ability = false
+        if card.ability.secret_ability then
             G.hand:change_size(-card.ability.extra.handSize)
         end
     end,
@@ -238,9 +238,9 @@ local killer_queen = {
                             slicedCard:start_dissolve({HEX("57ecab")}, nil, 1.6)
                         return true end }))
                         card.ability.extra.destroyedJokers = card.ability.extra.destroyedJokers + 1
-                        if  card.ability.extra.destroyedJokers >= 12 and not self.secAbility then
-                            card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(self)})
-                        elseif self.secAbility and pseudorandom("killerqueen") < G.GAME.probabilities.normal / card.ability.extra.handOdds then
+                        if  card.ability.extra.destroyedJokers >= 12 and not card.ability.secret_ability then
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
+                        elseif card.ability.secret_ability and pseudorandom("killerqueen") < G.GAME.probabilities.normal / card.ability.extra.handOdds then
                             card.ability.extra.handSize = card.ability.extra.handSize + 1
                             G.hand:change_size(1)
                             card_eval_status_text(context.other_joker, 'extra', nil, nil, nil, {message = "+1 Hand Size!"})

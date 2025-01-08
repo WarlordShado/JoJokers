@@ -1,4 +1,9 @@
+
+
 JOJO = {}
+
+
+
 
 JOJO.APPLY_ENCHANCE = function(card)
     local enhanements = {G.P_CENTERS.m_bonus,G.P_CENTERS.m_gold,G.P_CENTERS.m_lucky,G.P_CENTERS.m_wild,G.P_CENTERS.m_mult,G.P_CENTERS.m_glass,G.P_CENTERS.m_steel,G.P_CENTERS.m_stone}
@@ -40,7 +45,7 @@ JOJO.GET_MOST_PLAYED_HAND = function()
     return _hand
 end
 
-JOJO.REMOVE_JOKER = function(self,card)
+JOJO.REMOVE_JOKER = function(card)
     play_sound('tarot1')
     card.T.r = -0.2
     card:juice_up(0.3, 0.4)
@@ -49,7 +54,6 @@ JOJO.REMOVE_JOKER = function(self,card)
     G.E_MANAGER:add_event(Event({
         trigger = 'after', delay = 0.3, blockable = false,
         func = function()
-            G.jokers:remove_card(self)
             card:remove()
             card = nil
             return true
@@ -69,7 +73,7 @@ JOJO.EVOLVE = function(self,card,force_key)
     if card.ability.rental then prevRent = card.ability.rental end
     if card.ability.eternal then prevEternal = card.ability.eternal end
 
-    G.E_MANAGER:add_event(Event({JOJO.REMOVE_JOKER(self,card)}))
+    G.E_MANAGER:add_event(Event({JOJO.REMOVE_JOKER(card)}))
 
     local tempCard = {set = "Joker",area = G.jokers,key = force_key,no_edition = true}
     local newCard = SMODS.create_card(tempCard)
@@ -84,12 +88,12 @@ JOJO.EVOLVE = function(self,card,force_key)
     return "Evolved!"
 end
 
-JOJO.GENERATE_HINT = function(self,hintText,secAbilityText)
+JOJO.GENERATE_HINT = function(card,hintText,secAbilityText)
     local content = {}
     local textToUse
     local color
     
-    if self.secAbility == true  then
+    if card.ability.secret_ability then
         textToUse = secAbilityText
         color = G.C.SECONDARY_SET.Planet
     else
@@ -112,8 +116,8 @@ JOJO.GENERATE_HINT = function(self,hintText,secAbilityText)
     return {{n=G.UIT.C, config={align = "cm", minh = 0.4}, nodes=content}}
 end
 
-JOJO.ACTIVATE_SECRET_ABILITY = function(self)
-    self.secAbility = true
+JOJO.ACTIVATE_SECRET_ABILITY = function(card)
+    card.ability.secret_ability = true
 
     return "Secret Ability Active"
 end

@@ -5,6 +5,30 @@
 return {
     descriptions = {
         Other = {
+            secret_ability = {
+                name = "Mastered",
+                text = {
+                    "This joker can use its",
+                    "{C:special}Secret Ability{}"
+                }
+            },
+            switcher = {
+                name = "Switcher",
+                text = {
+                    "This Joker can {C:special}Switch{}",
+                    "between different jokers",
+                    "once it {C:soul}Evolves{}",
+                    "{C:inactive}(Press P to Switch){}"
+                }
+            },
+            tusk_base_ability = {
+                name = "Tusk Family",
+                text = {
+                    "Applies to All Varients of {C:sticker}Tusk{}",
+                    "{C:green}#2# in #3#{} chance to retrigger a card",
+                    "{C:inactive}Max of #1# Times{}",
+                }
+            },
             default = {
                 name = "Boss Soul",
                 text = {
@@ -320,5 +344,29 @@ return {
                 }
             }
         }
+    },
+    misc = {
+        achievement_names = {
+
+        },
+        achievement_descriptions = {
+       
+        },
+        challenge_names = {
+
+        },
+        dictionary = {
+
+        },
+        --These are the Labels
+        --You know how things like seals and editions have those badges at the bottom? That's what this is for!
+        labels = {
+            secret_ability = "Mastered",
+        },
+        v_dictionary = {
+            
+        },
+        v_text = {
+        },
     }
 }

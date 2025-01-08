@@ -17,14 +17,21 @@ SMODS.Atlas({
 	path = "part7.png",
 	px = 71,
 	py = 95
-})
+}):register()
 
 SMODS.Atlas({
     key = "Consume",
 	path = "consume.png",
 	px = 71,
 	py = 95
-})
+}):register()
+
+SMODS.Atlas({
+    key = "sticker",
+	path = "sticker.png",
+	px = 71,
+	py = 95
+}):register()
 
 local jojocolors = loc_colour
 function loc_colour(_c, _default)
