@@ -186,12 +186,13 @@ local dirty_deeds = {
 		G.GAME.pool_flags.hasD4C = false
 	end,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint then
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint  then
             card.ability.extra.usedRetrigs = card.ability.extra.maxRetrig
             return {message = "Dirty Deeds Done Dirt Cheap!"}
         end
 
-        if context.consumeable and card.ability.extra.usedRetrigs > 0 then
+        if context.consumeable and (card.ability.extra.usedRetrigs > 0 or context.consumeable.ability.name == "saintCorpse") and not context.consumeable.train  then
+            context.consumeable.train = true
             if context.consumeable.ability.name == "saintCorpse" then
                 G.GAME.pool_flags.hasD4C = false
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.EVOLVE(self,card,"j_jojo_d4c_love_train")})
@@ -199,6 +200,7 @@ local dirty_deeds = {
                 G.E_MANAGER:add_event(Event({
                     func = function() 
                         local card = copy_card(context.consumeable, nil)
+                        card.train = false
                         card:add_to_deck()
                         G.consumeables:emplace(card)
                         G.GAME.consumeable_buffer = 0
@@ -209,10 +211,13 @@ local dirty_deeds = {
             end
         end
 
-        if context.selling_card and not context.blueprint and card.ability.extra.usedRetrigs > 0 then
+        if context.selling_card and not context.blueprint and card.ability.extra.usedRetrigs > 0 and not context.card.train then
+            context.card.train = true
             G.E_MANAGER:add_event(Event({
                 func = function() 
                     local card = copy_card(context.card, nil)
+                    card.train = false
+                    JOJO.REDUCE_CARD_SELL_VALUE(card,0.25)
                     card:add_to_deck()
                     if context.card.ability.set == "Joker" then
                         G.jokers:emplace(card)
@@ -280,7 +285,6 @@ local dirty_deeds_love_train = {
             local removeEdJoker = SMODS.Edition:get_edition_cards(G.jokers,false)
             for i, joker in ipairs(removeEdJoker) do
                 if joker.edition.key == 'e_jojo_misfortune' then
-                    print("ran")
                     G.E_MANAGER:add_event(Event({
                         trigger = 'after',
                         func = function()
@@ -313,17 +317,19 @@ local dirty_deeds_love_train = {
             end
             
             card.ability.extra.wasTriged = true
-            return {message = "Dirty Deeds Done Dirt Cheap!"}
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Dirty Deeds Done Dirt Cheap!"})
         end
 
         if context.ending_shop and card.ability.extra.wasTriged == true then
             card.ability.extra.wasTriged = false
         end
 
-        if context.consumeable and card.ability.extra.usedRetrigs > 0 then
+        if context.consumeable and card.ability.extra.usedRetrigs > 0 and not context.consumeable.train then
+            context.consumeable.train = true
             G.E_MANAGER:add_event(Event({
                 func = function() 
                     local card = copy_card(context.consumeable, nil)
+                    card.train = false
                     card:add_to_deck()
                     G.consumeables:emplace(card)
                     G.GAME.consumeable_buffer = 0
@@ -333,10 +339,12 @@ local dirty_deeds_love_train = {
             card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
         end
 
-        local respawnCard  = function() 
+        local respawnCard  = function(train) 
             G.E_MANAGER:add_event(Event({
                 func = function() 
                     local card = copy_card(context.card, nil)
+                    JOJO.REDUCE_CARD_SELL_VALUE(card,0.25)
+                    card.train = false
                     card:add_to_deck()
                     if context.card.ability.set == "Joker" then
                         G.jokers:emplace(card)
@@ -347,17 +355,20 @@ local dirty_deeds_love_train = {
                     G.GAME.consumeable_buffer = 0
                     return true
                 end}))  
-            card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+            if not train then
+                card.ability.extra.usedRetrigs = card.ability.extra.usedRetrigs - 1
+            end
             card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Restored!"})
         end
 
-        if context.selling_card and not context.blueprint then
+        if context.selling_card and not context.blueprint and not context.card.train then
+            context.card.train = true
             if card.ability.extra.usedRetrigs > 0 then
-                respawnCard()
+                respawnCard(false)
             elseif context.card.ability.set == "Joker" and context.card.edition then
                 if context.card.edition.key == 'e_jojo_misfortune' then
                     if pseudorandom('lovetrain') > G.GAME.probabilities.normal / card.ability.extra.odds then
-                        respawnCard()
+                        respawnCard(true)
                     end
                 end
             end

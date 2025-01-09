@@ -58,6 +58,12 @@ JOJO.REMOVE_JOKER = function(self,card)
     return true
 end
 
+JOJO.REDUCE_CARD_SELL_VALUE = function(card,percent)
+    local newSell = card.sell_cost * percent
+    newSell = math.floor(newSell)
+    card.sell_cost = newSell
+end
+
 JOJO.EVOLVE = function(self,card,force_key)
     local prevEdition = nil
     local prevPerish = nil
