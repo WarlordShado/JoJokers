@@ -221,7 +221,9 @@ local kraftwork = {
     end
 }
 
+--,kraftwork
+
 return {
     name="Part 5 Stands",
-    list={gold_exp,gold_exp_req,kraftwork}
+    list={gold_exp,gold_exp_req}
 }

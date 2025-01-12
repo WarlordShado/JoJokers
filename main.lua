@@ -3,7 +3,7 @@
 --- MOD_ID: JoJokers
 --- MOD_AUTHOR: [Warlord Shado, Maratby, Lanuzo]
 --- MOD_DESCRIPTION: JoJo Meets Balatro!
---- DEPENDENCIES: [Talisman>=2.0.0-beta8,Steamodded>=1.0.0~ALPHA-0812d]
+--- DEPENDENCIES: [Steamodded>=1.0.0~ALPHA-0812d]
 --- BADGE_COLOR: eb4eac
 --- PREFIX: jojo
 ----------------------------------------------
