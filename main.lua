@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 --- STEAMODDED HEADER
 --- MOD_NAME: JoJokers
 --- MOD_ID: JoJokers

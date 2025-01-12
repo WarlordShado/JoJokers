@@ -264,7 +264,7 @@ local notorius_big_awaken = {
     end
 }
 
-local kraftwork = {
+local kraftwork = { --Remove need for talisman on this joker
     key ="kraftwork",
     name="Kraftwork",
     loc_txt = {
@@ -334,7 +334,9 @@ local kraftwork = {
     end
 }
 
+--,kraftwork
+
 return {
     name="Part 5 Stands",
-    list={gold_exp,gold_exp_req,notorius_big,notorius_big_awaken,kraftwork}
+    list={gold_exp,gold_exp_req,notorius_big,notorius_big_awaken}
 }
