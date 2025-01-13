@@ -186,7 +186,7 @@ local dirty_deeds = {
 		G.GAME.pool_flags.hasD4C = false
 	end,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint  then
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and not context.individual then
             card.ability.extra.usedRetrigs = card.ability.extra.maxRetrig
             return {message = "Dirty Deeds Done Dirt Cheap!"}
         end
@@ -194,7 +194,7 @@ local dirty_deeds = {
         if context.consumeable and (card.ability.extra.usedRetrigs > 0 or context.consumeable.ability.name == "saintCorpse") and not context.consumeable.train  then
             context.consumeable.train = true
             if context.consumeable.ability.name == "saintCorpse" then
-                G.GAME.pool_flags.hasD4C = false
+                
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.EVOLVE(self,card,"j_jojo_d4c_love_train")})
             else
                 G.E_MANAGER:add_event(Event({
@@ -248,16 +248,14 @@ local dirty_deeds_love_train = {
     config = {extra = {
         maxRetrig = 5,
         usedRetrigs = 5,
-        odds = 5,
-        wasTriged = false
+        odds = 5
     }},
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.maxRetrig,
             card.ability.extra.usedRetrigs,
             (G.GAME.probabilities.normal or 1),
-            card.ability.extra.odds,
-            card.ability.extra.wasTriged
+            card.ability.extra.odds
         }
 
         return {vars = vars,
@@ -274,12 +272,15 @@ local dirty_deeds_love_train = {
     pos = {x=2,y=2},
     cost = 10,
     blueprint_compat = false,
-    no_pool_flag = false,
-    add_to_deck = function(self)
-        self.secAbility = true
+    in_pool = function(self, args) return false end,
+    add_to_deck = function(self,card)
+        if not next(find_joker("D4C")) then
+            G.GAME.pool_flags.hasD4C = false
+        end
+        card.ability.secret_ability = true
     end,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.wasTriged == false then
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and not context.individual then
             card.ability.extra.usedRetrigs = card.ability.extra.maxRetrig
 
             local removeEdJoker = SMODS.Edition:get_edition_cards(G.jokers,false)
@@ -316,16 +317,10 @@ local dirty_deeds_love_train = {
                 }))
             end
             
-            card.ability.extra.wasTriged = true
-            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Dirty Deeds Done Dirt Cheap!"})
+            return {message = "Dirty Deeds Done Dirt Cheap!"}
         end
 
-        if context.ending_shop and card.ability.extra.wasTriged == true then
-            card.ability.extra.wasTriged = false
-        end
-
-        if context.consumeable and card.ability.extra.usedRetrigs > 0 and not context.consumeable.train then
-            context.consumeable.train = true
+        if context.consumeable and card.ability.extra.usedRetrigs > 0 then
             G.E_MANAGER:add_event(Event({
                 func = function() 
                     local card = copy_card(context.consumeable, nil)

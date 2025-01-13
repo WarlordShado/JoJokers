@@ -292,9 +292,7 @@ local sliver_chariot = {
             card.ability.extra.chips,
             card.ability.extra.chip_gain,
             card.ability.extra.mult_gain,
-            card.ability.extra.Xmult,
-            card.ability.extra.secAbility,
-            card.ability.extra.secAbilityText
+            card.ability.extra.Xmult
         }
 
         return {vars = vars,
@@ -378,16 +376,14 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     config = {extra = {
             boss = "",
             deck = "",
-            souls = 0,
-            abilityStopper = false
+            souls = 0
         }
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.boss,
             card.ability.extra.deck,
-            card.ability.extra.souls,
-            card.ability.extra.abilityStopper
+            card.ability.extra.souls
         }
         
         G.GAME.trigedVerdentLeafBoss = false --used to make sure that Verdent Leaf soul ability only triggers once
@@ -422,14 +418,11 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         end
     end,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not card.ability.extra.abilityStopper then
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
             card.ability.extra.boss = SOULS.GET_BOSS(G.GAME.blind.name)
-            --card.ability.extra.boss = 'The Psychic'
             card.ability.extra.souls = card.ability.extra.souls + 1
-            card.ability.extra.abilityStopper = true
             if card.ability.extra.souls >= 3 then
                 card.ability.extra.deck = G.GAME.selected_back.name
-                print(card.ability.extra.deck)
                 return {
                     message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                 }
@@ -462,11 +455,6 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
                     return SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].func(self,card,context)
                 end
             end
-        end
-
-
-        if context.ending_shop and card.ability.extra.abilityStopper == true then --In place so ability only triggers once (it triggered 14 times with the bool)
-            card.ability.extra.abilityStopper = false
         end
     end,
     calc_dollar_bonus = function(self,card)
@@ -570,21 +558,15 @@ local the_world = {
     config = {extra = {
         ante_reduction = 1,
         scoreRec = 2,
-        reducTriggered = false,
         seconds = 0,
-        repeats = 2,
-        abilityStopper = false}
+        repeats = 2,}
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.ante_reduction,
             card.ability.extra.scoreRec,
-            card.ability.extra.secAbility,
-            card.ability.extra.secAbilityText,
-            card.ability.extra.reducTriggered,
             card.ability.extra.seconds,
             card.ability.extra.repeats,
-            card.ability.extra.abilityStopper
         }
 
         return {vars = vars,
@@ -611,34 +593,22 @@ local the_world = {
             end
         end
 
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint then
-            if card.ability.extra.reducTriggered == false then
-                card.ability.extra.reducTriggered = true
-                local ante_mod = 0
-                if card.ability.extra.abilityStopper == false then
-                    if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scoreRec then
-                        card.ability.extra.abilityStopper = true
-                        ante_mod = ante_mod - card.ability.extra.ante_reduction
-                        ease_ante(ante_mod)
-                        if card.ability.extra.seconds >= 5 and self.secAbility == false then
-                            return {
-                                message = JOJO.ACTIVATE_SECRET_ABILITY(self)
-                            }
-                        elseif self.secAbility == false then
-                            card.ability.extra.seconds = card.ability.extra.seconds + 1
-                        end
-                        return {
-                            message = "The World"
-                        }
-                    end
-                else
-                    card.ability.extra.abilityStopper = false
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
+            local ante_mod = 0
+            if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scoreRec then
+                ante_mod = ante_mod - card.ability.extra.ante_reduction
+                ease_ante(ante_mod)
+                if card.ability.extra.seconds >= 5 and not card.ability.secret_ability then
+                    return {
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(card)
+                    }
+                elseif not card.ability.secret_ability then
+                    card.ability.extra.seconds = card.ability.extra.seconds + 1
                 end
+                return {
+                    message = "The World"
+                }
             end
-        end
-
-        if context.ending_shop and card.ability.extra.reducTriggered == true then --In place so ability only triggers once (it triggered 14 times with the bool)
-            card.ability.extra.reducTriggered = false
         end
     end
 }

@@ -14,7 +14,6 @@ local gold_exp = {
     },
     config = {extra = {
         interInc = 1,
-        abilityStopper = false,
         req = false
     }
     },
@@ -50,7 +49,7 @@ local gold_exp = {
             end
         end
 
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not card.ability.extra.abilityStopper then
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
             G.E_MANAGER:add_event(Event({
                 trigger = 'after',
                 delay = 0.2,
@@ -58,11 +57,6 @@ local gold_exp = {
                     G.GAME.interest_cap = G.GAME.interest_cap + (card.ability.extra.interInc * 5)
                     card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Upgrade!"})
             return true end}))
-            card.ability.extra.abilityStopper = true
-        end
-
-        if context.ending_shop and card.ability.extra.abilityStopper then --In place so ability only triggers once (it triggered several times without the bool)
-            card.ability.extra.abilityStopper = false
         end
 
         if context.joker_main then
@@ -89,8 +83,7 @@ local gold_exp_req = {
         }
     },
     config = {extra = {
-        interInc = 2,
-        abilityStopper = false
+        interInc = 2
     }
     },
     loc_vars = function(self,info_queue,card)
@@ -117,7 +110,7 @@ local gold_exp_req = {
         G.GAME.pool_flags.hasGoldChar = false 
     end,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not card.ability.extra.abilityStopper then
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
             G.E_MANAGER:add_event(Event({
                 trigger = 'after',
                 delay = 0.2,
@@ -125,11 +118,6 @@ local gold_exp_req = {
                     G.GAME.interest_cap = G.GAME.interest_cap + (card.ability.extra.interInc * 5)
                     card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Upgrade!"})
             return true end}))
-            card.ability.extra.abilityStopper = true
-        end
-
-        if context.ending_shop and card.ability.extra.abilityStopper and not context.blueprint then --In place so ability only triggers once (it triggered several times without the bool)
-            card.ability.extra.abilityStopper = false
         end
 
         if context.joker_main then
@@ -164,15 +152,11 @@ local kraftwork = {
         }
     },
     config = {extra = {
-        overflow = 0,
-        abilityStopper=false,
-        firstTimeStopper = true}
+        overflow = 0,}
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
-            card.ability.extra.overflow,
-            card.ability.extra.firstTimeStopper,
-            card.ability.extra.abilityStopper
+            card.ability.extra.overflow
         }
 
         return {vars = vars,
@@ -188,42 +172,52 @@ local kraftwork = {
     pos = {x=4,y=10},
     cost = 6,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.blueprint then
-            if card.ability.extra.firstTimeStopper == true then --Prevents a crash with talisman. Comparing a number with table.
-                card.ability.extra.firstTimeStopper = false
+        if context.end_of_round and not context.repetition and not context.game_over and not context.blueprint and not context.individual then
+            local chips = G.GAME.chips
+            local blindChips = G.GAME.blind.chips
+
+            if to_big ~= nil then
+                chips = to_big(chips)
+                blindChips = to_big(blindChips)
             end
-            if G.GAME.chips >= G.GAME.blind.chips and card.ability.extra.abilityStopper == false then
-                card.ability.extra.abilityStopper = true
-                card.ability.extra.overflow = to_big(G.GAME.chips - G.GAME.blind.chips)
-                print(type(card.ability.extra.overflow))
+            if G.GAME.chips >= G.GAME.blind.chips  then
+                card.ability.extra.overflow = chips - blindChips
                 
                 return{
                     message = "Stored!"
                 }
             end
         end
+        if context.setting_blind and not context.blueprint then
+            local overflow = card.ability.extra.overflow
+            local blindChips = G.GAME.blind.chips
+            local modifier = 0.75
+            local zero = 0
 
-        if context.setting_blind and not context.blueprint and card.ability.extra.firstTimeStopper == false then
-            card.ability.extra.abilityStopper = false
-            if  to_big(card.ability.extra.overflow) > to_big(0) then
+            if to_big ~= nil then
+                overflow = to_big(overflow)
+                blindChips = to_big(blindChips)
+                modifier = to_big(modifier)
+                zero = to_big(zero)
+            end
+
+            if overflow > zero then
                 G.E_MANAGER:add_event(Event({
                     trigger = 'after',
                     delay = 0.0,
                     func = function()
-                        if to_big(card.ability.extra.overflow) > to_big(G.GAME.blind.chips) * to_big(0.75) then
-                            card.ability.extra.overflow = to_big(G.GAME.blind.chips) * to_big(0.75)
+                        if overflow > blindChips * modifier then
+                            overflow = blindChips * modifier
                         end
-                        ease_chips(to_big(card.ability.extra.overflow))
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Kraftwork!"})
+                        ease_chips(overflow)
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Kraft Work!"})
                     return true end}))
             end
         end
     end
 }
 
---,kraftwork
-
 return {
     name="Part 5 Stands",
-    list={gold_exp,gold_exp_req}
+    list={gold_exp,gold_exp_req,kraftwork}
 }
