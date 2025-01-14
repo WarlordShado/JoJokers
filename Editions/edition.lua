@@ -8,10 +8,11 @@ local misfortune = ({
         name = "Misfortune Redirection",
         label = "Love Train",
         text = {
+            "{X:mult,C:white}X2{} Mult",
             "When this card is {C:attention}Sold{},",
-            "Respawn this Card. {C:green}1 in 5{} chance to not respawn.",
-            "{C:inactive}(Use D4C's respawns first){}",
-            "{X:mult,C:white}X2{} Mult"
+            "{C:attention}Respawn{} this Card",
+            "{C:green}1 in 5{} chance to not respawn.",
+            "{C:inactive}(Use D4C's respawns first){}"
         }
     },
     shader = "misfortune",

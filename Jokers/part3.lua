@@ -376,7 +376,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     loc_txt = {
         name = "Osiris",
         text = {
-            "Gain a {C:soul}Boss Soul{} after defeating a boss",
+            "Gain a {C:legendary}Boss Soul{} after defeating a boss",
             "Gains a different {C:attention}ability{} depending on boss",
             "{C:inactive}(If boss is modded, select a random soul){}"
         }
@@ -384,25 +384,23 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     config = {extra = {
             boss = "",
             deck = "",
-            souls = 0,
-            abilityStopper = false
+            souls = 0
         }
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.boss,
             card.ability.extra.deck,
-            card.ability.extra.souls,
-            card.ability.extra.abilityStopper
+            card.ability.extra.souls
         }
         
         G.GAME.trigedVerdentLeafBoss = false --used to make sure that Verdent Leaf soul ability only triggers once
-        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(card,card.ability.extra.boss,info_queue)
-        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(card,card.ability.extra.deck,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(self,card.ability.extra.boss,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(self,card.ability.extra.deck,info_queue)
 
         return {
             vars = vars,
-            main_end = SOULS.GENERATE_MAIN_END(card,card.ability.extra.boss,card.ability.extra.deck)
+            main_end = SOULS.GENERATE_MAIN_END(self,card.ability.extra.boss,card.ability.extra.deck)
         }
     end,
     rarity = 3,
@@ -410,7 +408,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     pos = {x=0,y=4},
     cost = 10,
     remove_from_deck = function(self, card, from_debuff) 
-        card.ability.secret_ability = false
+        self.secAbility = false
         SOULS.PERM_BONUS_TRIGGED = false
         SOULS.CONSEC = 0
         if card.ability.extra.deck == "Red Deck" then
@@ -428,16 +426,13 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         end
     end,
     calculate = function (self,card,context)
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not card.ability.extra.abilityStopper then
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
             card.ability.extra.boss = SOULS.GET_BOSS(G.GAME.blind.name)
-            --card.ability.extra.boss = 'The Psychic'
             card.ability.extra.souls = card.ability.extra.souls + 1
-            card.ability.extra.abilityStopper = true
             if card.ability.extra.souls >= 3 then
                 card.ability.extra.deck = G.GAME.selected_back.name
-                print(card.ability.extra.deck)
                 return {
-                    message = JOJO.ACTIVATE_SECRET_ABILITY(card)
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                 }
             end
             return {
@@ -447,7 +442,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         end
         
         if card.ability.extra.boss ~= "" then
-            if card.ability.secret_ability then
+            if self.secAbility then
                 local bossContext = SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].contextFunc(context)
                 local deckContext = SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].contextFunc(context)
 
@@ -468,11 +463,6 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
                     return SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].func(self,card,context)
                 end
             end
-        end
-
-
-        if context.ending_shop and card.ability.extra.abilityStopper == true then --In place so ability only triggers once (it triggered 14 times with the bool)
-            card.ability.extra.abilityStopper = false
         end
     end,
     calc_dollar_bonus = function(self,card)
@@ -504,7 +494,7 @@ local cream = {
         return {
             vars = vars,
             main_end = JOJO.GENERATE_HINT(
-                card,
+                self,
                 "Destroy a Blue Card...",
                 {"Every 4 cards destoryed,",
                 "create a negative black hole"}
@@ -517,14 +507,14 @@ local cream = {
     calculate = function (self,card,context)
         if context.before and not context.blueprint then
             card.ability.extra.deactivateDestroy = false
-            if not card.ability.secret_ability then
+            if self.secAbility == false then
                 if context.full_hand[1].seal == "Blue"then
                     G.E_MANAGER:add_event(Event({func = function()
                         card:juice_up(0.8, 0.8)
                     return true end }))
     
                     return {
-                        message = JOJO.ACTIVATE_SECRET_ABILITY(card)
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                     }
                 end
             end
@@ -541,7 +531,7 @@ local cream = {
         end
 
         if context.after and not context.repetition then
-            if card.ability.secret_ability then
+            if self.secAbility == true then
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))
@@ -576,26 +566,20 @@ local the_world = {
     config = {extra = {
         ante_reduction = 1,
         scoreRec = 2,
-        reducTriggered = false,
         seconds = 0,
-        repeats = 2,
-        abilityStopper = false}
+        repeats = 2,}
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.ante_reduction,
             card.ability.extra.scoreRec,
-            card.ability.extra.secAbility,
-            card.ability.extra.secAbilityText,
-            card.ability.extra.reducTriggered,
             card.ability.extra.seconds,
             card.ability.extra.repeats,
-            card.ability.extra.abilityStopper
         }
 
         return {vars = vars,
             main_end = JOJO.GENERATE_HINT(
-                card,
+                self,
                 "Halt Time for 5 seconds...",
                 "Retrigger all Aces Twice"
             )}
@@ -607,7 +591,7 @@ local the_world = {
     blueprint_compat = false,
     calculate = function (self,card,context)
 
-        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.secret_ability then
+        if context.cardarea == G.play and context.repetition and not context.repetition_only and self.secAbility == true then
             if context.other_card.base.value == "Ace" then
                 return {
                     message = "Muda!",
@@ -617,34 +601,22 @@ local the_world = {
             end
         end
 
-        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint then
-            if card.ability.extra.reducTriggered == false then
-                card.ability.extra.reducTriggered = true
-                local ante_mod = 0
-                if card.ability.extra.abilityStopper == false then
-                    if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scoreRec then
-                        card.ability.extra.abilityStopper = true
-                        ante_mod = ante_mod - card.ability.extra.ante_reduction
-                        ease_ante(ante_mod)
-                        if card.ability.extra.seconds >= 5 and not card.ability.secret_ability then
-                            return {
-                                message = JOJO.ACTIVATE_SECRET_ABILITY(card)
-                            }
-                        elseif not card.ability.secret_ability then
-                            card.ability.extra.seconds = card.ability.extra.seconds + 1
-                        end
-                        return {
-                            message = "The World"
-                        }
-                    end
-                else
-                    card.ability.extra.abilityStopper = false
+        if context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
+            local ante_mod = 0
+            if G.GAME.chips >= G.GAME.blind.chips * card.ability.extra.scoreRec then
+                ante_mod = ante_mod - card.ability.extra.ante_reduction
+                ease_ante(ante_mod)
+                if card.ability.extra.seconds >= 5 and not card.ability.secret_ability then
+                    return {
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(card)
+                    }
+                elseif not card.ability.secret_ability then
+                    card.ability.extra.seconds = card.ability.extra.seconds + 1
                 end
+                return {
+                    message = "The World"
+                }
             end
-        end
-
-        if context.ending_shop and card.ability.extra.reducTriggered == true then --In place so ability only triggers once (it triggered 14 times with the bool)
-            card.ability.extra.reducTriggered = false
         end
     end
 }
