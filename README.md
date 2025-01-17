@@ -1,6 +1,6 @@
 JoJo themed Balatro Mod
 
-This mod Requires Steamodded and Talisman
+This mod Requires Steamodded
 
 This mod adds 20 Stands ranging from part 3 to part 7
 
