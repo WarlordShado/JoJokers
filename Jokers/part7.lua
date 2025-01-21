@@ -475,7 +475,7 @@ local dirty_deeds = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Assemble a Saint",
             "Evolve"
         )}
@@ -567,7 +567,7 @@ local dirty_deeds_love_train = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "Evolves from Dirty Deeds",
             {"At the start of a round",
              "Add Misfortune Redirection to a random card",

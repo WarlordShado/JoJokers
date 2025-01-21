@@ -30,6 +30,10 @@ JOJO.APPLY_EDITION = function(card)
     card:set_edition(edition,true)
 end
 
+JOJO.REDUCE_CARD_SELL_VALUE = function (card,reducValue)
+    card.sell_cost = math.ceil(card.sell_cost * reducValue)
+end
+
 JOJO.GET_MOST_PLAYED_HAND = function()
     local _tally, _hand = 0,nil
     for k, v in ipairs(G.handlist) do

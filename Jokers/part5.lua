@@ -286,7 +286,7 @@ local kraftwork = {
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
-            self,
+            card,
             "WIP",
             "Add a Gold Seal to first played gold card"
         )}
@@ -341,8 +341,6 @@ local kraftwork = {
         end
     end
 }
-
---,kraftwork
 
 return {
     name="Part 5 Stands",

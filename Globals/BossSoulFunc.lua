@@ -774,7 +774,6 @@ SOULS.GET_BOSS = function(boss)
     return SOULS.VALID_BOSSES[math.random(1,#SOULS.VALID_BOSSES)]
 end
 
-
 SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS = function(self,bossName,info_queue)
     local _boss
     if bossName == "" then

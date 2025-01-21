@@ -395,12 +395,12 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         }
         
         G.GAME.trigedVerdentLeafBoss = false --used to make sure that Verdent Leaf soul ability only triggers once
-        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(self,card.ability.extra.boss,info_queue)
-        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(self,card.ability.extra.deck,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS(card,card.ability.extra.boss,info_queue)
+        SOULS.GENERATE_SOULS_INFO_QUEUE_DECK(card,card.ability.extra.deck,info_queue)
 
         return {
             vars = vars,
-            main_end = SOULS.GENERATE_MAIN_END(self,card.ability.extra.boss,card.ability.extra.deck)
+            main_end = SOULS.GENERATE_MAIN_END(card,card.ability.extra.boss,card.ability.extra.deck)
         }
     end,
     rarity = 3,
@@ -494,7 +494,7 @@ local cream = {
         return {
             vars = vars,
             main_end = JOJO.GENERATE_HINT(
-                self,
+                card,
                 "Destroy a Blue Card...",
                 {"Every 4 cards destoryed,",
                 "create a negative black hole"}
@@ -579,7 +579,7 @@ local the_world = {
 
         return {vars = vars,
             main_end = JOJO.GENERATE_HINT(
-                self,
+                card,
                 "Halt Time for 5 seconds...",
                 "Retrigger all Aces Twice"
             )}
