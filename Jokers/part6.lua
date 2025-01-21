@@ -130,7 +130,7 @@ local whitesnake = {
                 (
                 context.card.ability.set == "Joker" or
                 context.card.ability.set == "Planet"
-                )
+                )     
                 then
                     context.card:set_edition(WSeditionstorage["1"])
                     for index = 1, 5 do
