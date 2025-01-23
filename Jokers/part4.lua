@@ -135,7 +135,13 @@ local the_hand = {
             end
         elseif context.pre_discard and not context.blueprint and #context.full_hand == 5 and card.ability.secret_ability then
             ease_dollars(card.ability.extra.money)
-            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "The Hand!"})
+            local _message = "The Hand!"
+
+            if jojo_config.meme_respond then
+                _message = "ZA HANDO!"
+            end
+
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = _message})
         end
     end
 }

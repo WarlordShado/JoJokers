@@ -613,9 +613,17 @@ local the_world = {
                 elseif not card.ability.secret_ability then
                     card.ability.extra.seconds = card.ability.extra.seconds + 1
                 end
-                return {
-                    message = "The World"
-                }
+
+                if not jojo_config.meme_respond then
+                    return {
+                        message = "The World"
+                    }
+                else
+                    return {
+                        message = "ZA WORLDO!"
+                    }
+                end
+                
             end
         end
     end
