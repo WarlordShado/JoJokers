@@ -342,7 +342,51 @@ local kraftwork = {
     end
 }
 
+local king_crimson = {
+    key ="king_crimson",
+    name="KingCrimson",
+    loc_txt = {
+        name = "King Crimson",
+        text = {
+            "After {C:attention}Skipping{} a blind",
+            "open the {C:attention}Shop{}"
+        }
+    },
+    config = {extra = {}
+    },
+    loc_vars = function(self,info_queue,card)
+        local vars = {
+            card.ability.extra.overflow
+        }
+
+        return {vars = vars,
+        main_end = JOJO.GENERATE_HINT(
+            card,
+            "WIP",
+            "Add a Gold Seal to first played gold card"
+        )}
+    end,
+    rarity = 3,
+    blueprint_compat = false,
+    atlas = "JoJokers",
+    pos = {x=1,y=10},
+    cost = 6,
+    calculate = function (self,card,context)
+        if context.skip_blind then
+            --print("ran")
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                func = function()
+                    G.STATE = G.STATES.SHOP
+                    G.STATE_COMPLETE = false
+                    return true
+                end,
+            }))
+        end
+    end
+}
+
 return {
     name="Part 5 Stands",
-    list={gold_exp,gold_exp_req,notorius_big,notorius_big_awaken,kraftwork}
+    list={gold_exp,gold_exp_req,notorius_big,notorius_big_awaken,kraftwork,king_crimson}
 }

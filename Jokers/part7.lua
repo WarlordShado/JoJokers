@@ -482,7 +482,7 @@ local dirty_deeds = {
     end,
     rarity = 2,
     atlas = "JoJokers7",
-    pos = {x=0,y=2},
+    pos = {x=0,y=3},
     cost = 10,
     blueprint_compat = false,
     add_to_deck = function(self)
@@ -576,7 +576,7 @@ local dirty_deeds_love_train = {
     end,
     rarity = 4,
     atlas = "JoJokers7",
-    pos = {x=2,y=2},
+    pos = {x=2,y=3},
     cost = 10,
     blueprint_compat = false,
     in_pool = function(self, args) return false end,
