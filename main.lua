@@ -4,7 +4,8 @@
 --- MOD_AUTHOR: [Warlord Shado, Maratby, Lanuzo]
 --- MOD_DESCRIPTION: JoJo Meets Balatro!
 --- DEPENDENCIES: [Talisman>=2.0.0-beta8,Steamodded>=1.0.0~ALPHA-0812d]
---- BADGE_COLOR: eb4eac
+--- BADGE_COLOR: 8900b3
+--- BADGE_TEXT_COLOR: ffee00
 --- PREFIX: jojo
 ----------------------------------------------
 ------------MOD CODE -------------------------
@@ -39,6 +40,13 @@ if load_error then
   sendDebugMessage ("The error is: "..load_error)
 else
     SwitcherFunc()
+end
+
+local OverideFunc, load_error = SMODS.load_file("Globals/OverideFuncs.lua")
+if load_error then
+  sendDebugMessage ("The error is: "..load_error)
+else
+    OverideFunc()
 end
 
 --Load Joker Files

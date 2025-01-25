@@ -213,8 +213,7 @@ local notorius_big_awaken = {
     loc_vars = function(self,info_queue,card)
         local vars = {
             card.ability.extra.mult,
-            card.ability.extra.multGain,
-            card.ability.extra.abilityStopper
+            card.ability.extra.multGain
         }
 
         return {vars = vars}
@@ -249,17 +248,12 @@ local notorius_big_awaken = {
             }
         end
 
-        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and card.ability.extra.abilityStopper == false then
-            card.ability.extra.abilityStopper = true
+        if context.end_of_round and not context.game_over and not context.repetition and not context.blueprint and not context.individual then
             card.ability.extra.mult = 0
             return{
                 card = card,
                 message = localize('k_reset')
             }
-        end
-
-        if context.ending_shop and card.ability.extra.abilityStopper == true then --In place so ability only triggers once (it triggered 14 times with the bool)
-            card.ability.extra.abilityStopper = false
         end
     end
 }
@@ -349,39 +343,66 @@ local king_crimson = {
         name = "King Crimson",
         text = {
             "After {C:attention}Skipping{} a blind",
-            "open the {C:attention}Shop{}"
+            "open the {C:attention}Shop{}",
+            "{C:inactive}(Rounds will still go up){}"
         }
     },
-    config = {extra = {}
+    config = {extra = {
+        Xmult= 3,
+        XmultActive = false,
+        skipAmt = 0
+    }
     },
     loc_vars = function(self,info_queue,card)
         local vars = {
-            card.ability.extra.overflow
+            card.ability.extra.Xmult,
+            card.ability.extra.XmultActive,
+            card.ability.extra.skipAmt
         }
 
         return {vars = vars,
         main_end = JOJO.GENERATE_HINT(
             card,
-            "WIP",
-            "Add a Gold Seal to first played gold card"
+            "Keep Skipping",
+            {"X3 Mult on Boss Blind",
+            "if Small and Big Blind",
+            "were both skipped"}
         )}
     end,
-    rarity = 3,
+    rarity = 2,
     blueprint_compat = false,
     atlas = "JoJokers",
     pos = {x=1,y=10},
     cost = 6,
     calculate = function (self,card,context)
         if context.skip_blind then
-            --print("ran")
-            G.E_MANAGER:add_event(Event({
-                trigger = "after",
-                func = function()
-                    G.STATE = G.STATES.SHOP
-                    G.STATE_COMPLETE = false
-                    return true
-                end,
-            }))
+            card.ability.extra.skipAmt = card.ability.extra.skipAmt + 1
+            if not card.ability.secret_ability and card.ability.extra.skipAmt >= 5 then
+                card.ability.extra.XmultActive = true
+                card_eval_status_text(card, 'extra', nil, nil, nil, {message = JOJO.ACTIVATE_SECRET_ABILITY(card)})
+            else 
+                card_eval_status_text(card, 'extra', nil, nil, nil, {message = "King Crimson!"})
+            end
+        end
+
+        if card.ability.secret_ability and context.setting_blind and not G.GAME.blind.boss then
+            card.ability.extra.XmultActive = false
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Inactive"})
+        end
+
+        if context.joker_main and G.GAME.blind.boss and card.ability.extra.XmultActive then
+            return{
+                message = localize{type = 'variable', key = 'a_xmult', vars = {card.ability.extra.Xmult}}, 
+                colour = G.C.XMULT,
+                x_mult = card.ability.extra.Xmult
+              }
+        end
+
+        if card.ability.secret_ability and context.end_of_round and not context.game_over and not context.repetition and G.GAME.blind.boss and not context.blueprint and not context.individual then
+            card.ability.extra.XmultActive = true
+            return{
+                message = localize('k_reset')
+            }
         end
     end
 }

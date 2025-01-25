@@ -24,7 +24,7 @@ local crossfire = {
     },
     visible = false,
     evaluate = function(parts, hand)
-        if next(find_joker("Magician's Red")) then
+        if next(SMODS.find_card("j_jojo_magician_red")) then
             if next(parts._3) and next(parts._2) then
                 local _crossfire = SMODS.merge_lists(parts._2,parts._3)
                 local kingCounter = 0
