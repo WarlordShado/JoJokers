@@ -8,6 +8,7 @@ SOULS.VERDENT_TRIGGED = false
 SOULS.PERM_BONUS_TRIGGED = false
 
 SOULS.VALID_BOSSES = {'The Hook','The Ox','The House','The Wall','The Wheel','The Arm','The Club','The Fish','The Psychic','The Goad','The Water','The Window','The Manacle','The Eye','The Mouth','The Plant','The Serpent','The Pillar','The Needle','The Head','The Tooth','The Flint','The Mark','Amber Acorn','Verdent Leaf','Violet Vessel','Crimson Heart','Cerulean Bell'}
+SOULS.VALID_DECK = {"Red Deck","Blue Deck","Yellow Deck","Green Deck","Black Deck","Magic Deck","Nebula Deck","Ghost Deck","Abandoned Deck","Checkered Deck","Zodiac Deck","Painted Deck","Anaglyph Deck","Plasma Deck","Erratic Deck"}
 
 SOULS.BOSS_TEXT_TABLE = {
     ['The Hook'] = {
@@ -772,6 +773,15 @@ SOULS.GET_BOSS = function(boss)
         end
     end
     return SOULS.VALID_BOSSES[math.random(1,#SOULS.VALID_BOSSES)]
+end
+
+SOULS.GET_DECK = function(deck)
+    for i,_deck in ipairs(SOULS.VALID_DECK) do 
+        if deck == _deck then
+            return deck
+        end
+    end
+    return SOULS.VALID_DECK[math.random(1,#SOULS.VALID_DECK)]
 end
 
 SOULS.GENERATE_SOULS_INFO_QUEUE_BOSS = function(self,bossName,info_queue)

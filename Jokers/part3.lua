@@ -408,7 +408,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
     pos = {x=0,y=4},
     cost = 10,
     remove_from_deck = function(self, card, from_debuff) 
-        self.secAbility = false
+        card.ability.secret_ability = false
         SOULS.PERM_BONUS_TRIGGED = false
         SOULS.CONSEC = 0
         if card.ability.extra.deck == "Red Deck" then
@@ -430,9 +430,9 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
             card.ability.extra.boss = SOULS.GET_BOSS(G.GAME.blind.name)
             card.ability.extra.souls = card.ability.extra.souls + 1
             if card.ability.extra.souls >= 3 then
-                card.ability.extra.deck = G.GAME.selected_back.name
+                card.ability.extra.deck = SOULS.GET_DECK(G.GAME.selected_back.name)
                 return {
-                    message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                    message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                 }
             end
             return {
@@ -442,7 +442,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
         end
         
         if card.ability.extra.boss ~= "" then
-            if self.secAbility then
+            if card.ability.secret_ability then
                 local bossContext = SOULS.BOSS_TEXT_TABLE[card.ability.extra.boss].contextFunc(context)
                 local deckContext = SOULS.DECK_TEXT_TABLE[card.ability.extra.deck].contextFunc(context)
 
@@ -507,14 +507,14 @@ local cream = {
     calculate = function (self,card,context)
         if context.before and not context.blueprint then
             card.ability.extra.deactivateDestroy = false
-            if self.secAbility == false then
+            if card.ability.secret_ability == false then
                 if context.full_hand[1].seal == "Blue"then
                     G.E_MANAGER:add_event(Event({func = function()
                         card:juice_up(0.8, 0.8)
                     return true end }))
     
                     return {
-                        message = JOJO.ACTIVATE_SECRET_ABILITY(self)
+                        message = JOJO.ACTIVATE_SECRET_ABILITY(card)
                     }
                 end
             end
@@ -531,7 +531,7 @@ local cream = {
         end
 
         if context.after and not context.repetition then
-            if self.secAbility == true then
+            if card.ability.secret_ability == true then
                 G.E_MANAGER:add_event(Event({func = function()
                     card:juice_up(0.8, 0.8)
                 return true end }))
@@ -591,7 +591,7 @@ local the_world = {
     blueprint_compat = false,
     calculate = function (self,card,context)
 
-        if context.cardarea == G.play and context.repetition and not context.repetition_only and self.secAbility == true then
+        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.secret_ability == true then
             if context.other_card.base.value == "Ace" then
                 return {
                     message = "Muda!",

@@ -489,7 +489,7 @@ local dirty_deeds = {
 		G.GAME.pool_flags.hasD4C = true
 	end,
     remove_from_deck = function(self)
-        self.secAbility = false
+        card.ability.secret_ability = false
 		G.GAME.pool_flags.hasD4C = false
 	end,
     calculate = function (self,card,context)
