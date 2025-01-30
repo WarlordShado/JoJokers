@@ -422,7 +422,7 @@ local osiris = { --Will prolly need to rewrite if SOULS is reused (just make a c
             card.ability.extra.boss = SOULS.GET_BOSS(G.GAME.blind.name)
             card.ability.extra.souls = card.ability.extra.souls + 1
             if card.ability.extra.souls >= 3 then
-                card.ability.extra.deck = G.GAME.selected_back.name
+                card.ability.extra.deck = SOULS.GET_DECK(G.GAME.selected_back.name)
                 return {
                     message = JOJO.ACTIVATE_SECRET_ABILITY(self)
                 }
