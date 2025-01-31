@@ -86,19 +86,26 @@ JOJO.EVOLVE = function(self,card,force_key)
     if card.ability.rental then prevRent = card.ability.rental end
     if card.ability.eternal then prevEternal = card.ability.eternal end
 
-    G.E_MANAGER:add_event(Event({JOJO.REMOVE_JOKER(card)}))
-
+    G.E_MANAGER:add_event(Event({trigger = 'before', delay = 0.2, func = function()
+        card:start_dissolve()
+    return true end }))
+    
     local tempCard = {set = "Joker",area = G.jokers,key = force_key,no_edition = true}
-    local newCard = SMODS.create_card(tempCard)
+    if prevEdition then tempCard.edition = prevEdition end
+    if prevPerish then tempCard.ability.perishable = prevPerish end
+    if prevEternal then tempCard.ability.eternal = prevEternal end
+    if prevRent then tempCard.ability.rental = prevRent end
 
-    if prevEdition then newCard.edition = prevEdition end
-    if prevPerish then newCard.ability.perishable = prevPerish end
-    if prevEternal then newCard.ability.eternal = prevEternal end
-    if prevRent then newCard.ability.rental = prevRent end
+    G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+        local newCard = SMODS.create_card(tempCard)
 
-    newCard:add_to_deck()
-    G.jokers:emplace(newCard)
-    return "Evolved!"
+        newCard:start_materialize()
+        newCard:add_to_deck()
+        G.jokers:emplace(newCard)
+        JOJO.REMOVE_JOKER(card)
+        delay(0.2)
+        card_eval_status_text(newCard, 'extra', nil, nil, nil, {message = "Evolved!",colour=G.C.PURPLE})
+    return true end }))
 end
 
 JOJO.GENERATE_HINT = function(card,hintText,secAbilityText)

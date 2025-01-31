@@ -12,8 +12,8 @@ SMODS.Keybind({
             if G.CONTROLLER.hovering.target and G.CONTROLLER.hovering.target:is(Card)then
                 local card = G.CONTROLLER.hovering.target
                 if card.ability.set == "Joker" then
-                    if card.ability.isSwitcher then
-                        sendDebugMessage ("SwitchKey: "..card.ability.switchKey.." nextSwitch: "..card.ability.nextSwitch)
+                    if card.ability.isSwitcher then --Eventually add a UI box to select between switches 
+                        --sendDebugMessage ("SwitchKey: "..card.ability.switchKey.." nextSwitch: "..card.ability.nextSwitch)
                         SWITCH.SWITCH(card,card.ability.switchKey,card.ability.nextSwitch)
                     end
                 end
@@ -62,12 +62,12 @@ end
 SWITCH.SWITCH = function(beforeCard,switchKey,nextSwitch)
     local _card = SWITCH.SWITCHER_KEY_CARD[switchKey][nextSwitch]
 
-    G.E_MANAGER:add_event(Event({trigger = 'before', delay = 0.2, func = function()
+    G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.2, func = function()
         SWITCH.SWITCHER_KEY_CARD[switchKey][beforeCard.ability.name] = beforeCard
-        JOJO.REMOVE_JOKER(beforeCard)
+        beforeCard:start_dissolve()
     return true end }))
 
-    G.E_MANAGER:add_event(Event({trigger = 'before', delay = 0.4, func = function()
+    G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
         local card = copy_card(_card, nil, nil, nil, _card.edition and _card.edition.negative)
         card:start_materialize()
         card:add_to_deck()
@@ -75,6 +75,7 @@ SWITCH.SWITCH = function(beforeCard,switchKey,nextSwitch)
             card:set_edition(nil, true)
         end
         G.jokers:emplace(card)
+        JOJO.REMOVE_JOKER(beforeCard)
     return true end }))
 end
 

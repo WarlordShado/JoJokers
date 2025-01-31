@@ -46,7 +46,7 @@ local gold_exp = {
     calculate = function (self,card,context)
         if context.consumeable then
             if context.consumeable.ability.name == "beetle_arrow" and card.ability.extra.req == true then
-                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.EVOLVE(self,card,"j_jojo_gold_exp_req")})
+                JOJO.EVOLVE(self,card,"j_jojo_gold_exp_req")
             end
         end
 
@@ -184,8 +184,8 @@ local notorius_big = {
     cost = 6,
     calculate = function (self,card,context)
         if context.game_over then
+            JOJO.EVOLVE(self,card,"j_jojo_notorius_big_awaken")
             return {
-                message = JOJO.EVOLVE(self,card,"j_jojo_notorius_big_awaken"),
                 saved = true,
                 colour = G.C.RED
             }

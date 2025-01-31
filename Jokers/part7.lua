@@ -488,7 +488,7 @@ local dirty_deeds = {
     add_to_deck = function(self)
 		G.GAME.pool_flags.hasD4C = true
 	end,
-    remove_from_deck = function(self)
+    remove_from_deck = function(self,card)
         card.ability.secret_ability = false
 		G.GAME.pool_flags.hasD4C = false
 	end,
@@ -501,8 +501,7 @@ local dirty_deeds = {
         if context.consumeable and (card.ability.extra.usedRetrigs > 0 or context.consumeable.ability.name == "saintCorpse") and not context.consumeable.train  then
             context.consumeable.train = true
             if context.consumeable.ability.name == "saintCorpse" then
-                
-                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = JOJO.EVOLVE(self,card,"j_jojo_d4c_love_train")})
+                JOJO.EVOLVE(self,card,"j_jojo_d4c_love_train")
             else
                 G.E_MANAGER:add_event(Event({
                     func = function() 
